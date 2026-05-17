@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>מלאי קוקטיילים</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #0f0f1a;
+      color: #eee;
+      min-height: 100vh;
+      padding: 24px 16px 80px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 1.8rem;
+      color: #ff6b6b;
+      margin-bottom: 28px;
+      letter-spacing: 1px;
+    }
+
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    /* ---- Drink Row ---- */
+    .drink-row {
+      display: flex;
+      align-items: center;
+      background: #1a1a2e;
+      border-radius: 14px;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+      gap: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    }
+
+    .drink-name {
+      flex: 1;
+      background: transparent;
+      border: none;
+      border-bottom: 1.5px solid #333;
+      color: #eee;
+      font-size: 1.05rem;
+      padding: 4px 6px;
+      text-align: right;
+      min-width: 0;
+    }
+    .drink-name:focus {
+      outline: none;
+      border-bottom-color: #ff6b6b;
+    }
+    .drink-name::placeholder { color: #555; }
+
+    /* ---- Qty Controls ---- */
+    .qty-controls {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .qty-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: none;
+      background: #ff6b6b;
+      color: #fff;
+      font-size: 1.4rem;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+      transition: background 0.15s;
+      flex-shrink: 0;
+    }
+    .qty-btn:active { background: #cc4444; }
+
+    .qty-input {
+      width: 58px;
+      text-align: center;
+      background: #0d0d1f;
+      border: 1.5px solid #333;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 1.05rem;
+      padding: 7px 4px;
+    }
+    .qty-input:focus { outline: none; border-color: #ff6b6b; }
+    .qty-input::placeholder { color: #444; font-size: 0.85rem; }
+
+    /* ---- Delete Button ---- */
+    .delete-btn {
+      background: none;
+      border: none;
+      color: #444;
+      cursor: pointer;
+      font-size: 1.1rem;
+      padding: 4px 6px;
+      line-height: 1;
+      transition: color 0.15s;
+      flex-shrink: 0;
+    }
+    .delete-btn:hover { color: #ff6b6b; }
+
+    /* ---- Add Button ---- */
+    .add-btn {
+      display: block;
+      width: 100%;
+      margin: 6px 0 20px;
+      padding: 13px;
+      background: transparent;
+      border: 2px dashed #333;
+      border-radius: 14px;
+      color: #666;
+      font-size: 1rem;
+      cursor: pointer;
+      text-align: center;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .add-btn:hover { border-color: #ff6b6b; color: #eee; }
+
+    /* ---- Copy Button ---- */
+    .copy-btn {
+      display: block;
+      width: 100%;
+      padding: 16px;
+      background: #ff6b6b;
+      border: none;
+      border-radius: 14px;
+      color: #fff;
+      font-size: 1.15rem;
+      font-weight: bold;
+      cursor: pointer;
+      letter-spacing: 0.5px;
+      transition: background 0.15s;
+    }
+    .copy-btn:hover { background: #e05555; }
+    .copy-btn:active { background: #cc4444; }
+
+    /* ---- Toast ---- */
+    .toast {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #2a2a3e;
+      border: 1px solid #ff6b6b;
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s, transform 0.25s;
+      white-space: nowrap;
+    }
+    .toast.visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🍹 מלאי קוקטיילים</h1>
+    <div id="list"></div>
+    <button class="add-btn" onclick="addDrink()">＋ הוסף משקה</button>
+    <button class="copy-btn" onclick="copyList()">📋 &nbsp;העתק רשימה</button>
+  </div>
+  <div class="toast" id="toast">✓ הרשימה הועתקה ללוח!</div>
+
+  <script>
+    const DEFAULT_DRINKS = [
+      'אוסקר', 'רייצ׳ל', 'אלגין', 'דאבל', 'מוברק', 'בריין', "צ'יליאן", 'דינו', 'דדי'
+    ];
+
+    // Load from localStorage or create defaults
+    let drinks = loadDrinks();
+
+    function loadDrinks() {
+      try {
+        const saved = localStorage.getItem('cocktail_drinks');
+        if (saved) return JSON.parse(saved);
+      } catch (e) {}
+      return DEFAULT_DRINKS.map((name, i) => ({ id: i + 1, name, qty: '' }));
+    }
+
+    function save() {
+      localStorage.setItem('cocktail_drinks', JSON.stringify(drinks));
+    }
+
+    function render() {
+      const list = document.getElementById('list');
+      list.innerHTML = drinks.map((d, i) => `
+        <div class="drink-row" data-index="${i}">
+          <button class="delete-btn" onclick="deleteDrink(${i})" title="מחק">✕</button>
+          <input
+            class="drink-name"
+            type="text"
+            value="${escHtml(d.name)}"
+            placeholder="שם משקה"
+            onchange="updateName(${i}, this.value)"
+          />
+          <div class="qty-controls">
+            <button class="qty-btn" onclick="changeQty(${i}, -0.5)">−</button>
+            <input
+              class="qty-input"
+              type="number"
+              value="${d.qty}"
+              step="0.5"
+              min="0"
+              placeholder="כמות"
+              onchange="updateQty(${i}, this.value)"
+              oninput="updateQty(${i}, this.value)"
+            />
+            <button class="qty-btn" onclick="changeQty(${i}, 0.5)">+</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function escHtml(str) {
+      return str.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    function updateName(i, val) {
+      drinks[i].name = val.trim();
+      save();
+    }
+
+    function updateQty(i, val) {
+      drinks[i].qty = val;
+      save();
+    }
+
+    function changeQty(i, delta) {
+      // Read current value from DOM to stay in sync with typed edits
+      const rows = document.getElementById('list').querySelectorAll('.drink-row');
+      const input = rows[i].querySelector('.qty-input');
+      const current = parseFloat(input.value) || 0;
+      const next = Math.max(0, parseFloat((current + delta).toFixed(2)));
+      drinks[i].qty = next === 0 ? '0' : String(next);
+      save();
+      input.value = drinks[i].qty;
+    }
+
+    function deleteDrink(i) {
+      if (drinks.length === 1) { alert('חייב להישאר לפחות משקה אחד'); return; }
+      drinks.splice(i, 1);
+      save();
+      render();
+    }
+
+    function addDrink() {
+      drinks.push({ id: Date.now(), name: '', qty: '' });
+      save();
+      render();
+      setTimeout(() => {
+        const inputs = document.querySelectorAll('.drink-name');
+        inputs[inputs.length - 1].focus();
+      }, 30);
+    }
+
+    function copyList() {
+      const lines = drinks
+        .filter(d => d.name.trim() !== '' && d.qty !== '')
+        .map(d => {
+          const num = parseFloat(d.qty);
+          const display = num === 0 ? 'נגמר' : d.qty;
+          return `${d.name} - ${display}`;
+        });
+
+      if (lines.length === 0) {
+        showToast('אין כמויות למלאי 🤷');
+        return;
+      }
+
+      navigator.clipboard.writeText(lines.join('\n'))
+        .then(() => showToast('✓ הרשימה הועתקה ללוח!'))
+        .catch(() => {
+          // Fallback for browsers that block clipboard
+          const ta = document.createElement('textarea');
+          ta.value = lines.join('\n');
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+          showToast('✓ הרשימה הועתקה ללוח!');
+        });
+    }
+
+    let toastTimer;
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('visible');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.remove('visible'), 2500);
+    }
+
+    render();
+  </script>
+</body>
+</html>
