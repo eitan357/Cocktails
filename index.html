@@ -33,88 +33,13 @@
       transition: color 0.15s, border-color 0.15s;
     }
     .tab-btn.active { color: #d4a058; border-bottom-color: #d4a058; }
-    .settings-btn {
+    .export-nav-btn {
       background: none; border: none;
-      color: #5a4a3a; font-size: 1.1rem;
+      color: #5a4a3a; font-size: 1.2rem;
       padding: 0 14px; cursor: pointer;
-      transition: color 0.15s;
+      transition: color 0.15s; flex-shrink: 0;
     }
-    .settings-btn:hover { color: #d4a058; }
-
-    /* ---- Sync Badge ---- */
-    .sync-badge {
-      position: fixed; bottom: 76px; left: 16px;
-      background: #1e1a16; border: 1px solid #3a3028;
-      border-radius: 20px; padding: 5px 12px;
-      font-size: 0.8rem; z-index: 150;
-      transition: border-color 0.3s, color 0.3s, opacity 0.3s;
-      opacity: 0; pointer-events: none;
-    }
-    .sync-badge.visible { opacity: 1; pointer-events: auto; }
-    .sync-badge.saving  { border-color: #c8853a; color: #d4a058; }
-    .sync-badge.saved   { border-color: #4a7a4a; color: #7acc7a; }
-    .sync-badge.error   { border-color: #a04040; color: #e07070; cursor: pointer; }
-    .sync-badge.loading { border-color: #c8853a; color: #d4a058; }
-
-    /* ---- Loading Overlay ---- */
-    #loading-overlay {
-      position: fixed; inset: 0;
-      background: #12100e;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      z-index: 500; gap: 16px;
-    }
-    #loading-overlay .spinner {
-      width: 40px; height: 40px;
-      border: 3px solid #2e2820;
-      border-top-color: #d4a058;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-    #loading-overlay p { color: #8a7a6a; font-size: 0.95rem; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* ---- Setup Modal ---- */
-    .modal-overlay {
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,0.75);
-      display: flex; align-items: center; justify-content: center;
-      z-index: 400; padding: 20px;
-    }
-    .modal-overlay.hidden { display: none; }
-    .modal-box {
-      background: #1e1a16;
-      border: 1px solid #3a3028;
-      border-radius: 18px;
-      padding: 24px 20px;
-      max-width: 440px; width: 100%;
-      max-height: 90vh; overflow-y: auto;
-    }
-    .modal-box h2 { color: #d4a058; font-size: 1.3rem; margin-bottom: 16px; }
-    .modal-box p, .modal-box li { color: #c0b0a0; font-size: 0.9rem; line-height: 1.6; }
-    .modal-box ol { padding-right: 20px; margin: 10px 0 16px; }
-    .modal-box ol li { margin-bottom: 6px; }
-    .modal-box a { color: #d4a058; }
-    .modal-label { font-size: 0.8rem; color: #c8853a; font-weight: bold;
-      letter-spacing: 0.5px; margin: 14px 0 6px; display: block; }
-    .modal-input {
-      width: 100%; background: #12100e;
-      border: 1px solid #3a3028; border-radius: 8px;
-      color: #f0e6d8; font-size: 0.95rem;
-      padding: 10px 12px; font-family: inherit;
-      direction: ltr; text-align: left;
-    }
-    .modal-input:focus { outline: none; border-color: #d4a058; }
-    .modal-save-btn {
-      display: block; width: 100%; margin-top: 20px;
-      padding: 14px; background: #c8853a; border: none;
-      border-radius: 12px; color: #fff;
-      font-size: 1rem; font-weight: bold;
-      cursor: pointer; font-family: inherit;
-      transition: background 0.15s;
-    }
-    .modal-save-btn:hover { background: #b07030; }
-    .modal-error { color: #e07070; font-size: 0.85rem; margin-top: 10px; }
+    .export-nav-btn:hover { color: #d4a058; }
 
     /* ---- Page ---- */
     .page { max-width: 480px; margin: 0 auto; padding: 24px 16px; }
@@ -223,6 +148,19 @@
     }
     .name-input:focus { outline: none; border-color: #c8853a; }
 
+    /* ---- Export hint ---- */
+    .export-hint {
+      margin-top: 24px;
+      padding: 14px 16px;
+      background: #1a1510;
+      border: 1px dashed #3a3028;
+      border-radius: 14px;
+      color: #7a6a5a;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+
     /* ---- Toast ---- */
     .toast {
       position: fixed; bottom: 28px; left: 50%;
@@ -238,45 +176,10 @@
 </head>
 <body>
 
-  <!-- Loading Overlay -->
-  <div id="loading-overlay">
-    <div class="spinner"></div>
-    <p>טוען נתונים מ-GitHub...</p>
-  </div>
-
-  <!-- Setup Modal -->
-  <div id="setup-modal" class="modal-overlay hidden">
-    <div class="modal-box">
-      <h2>🔑 הגדרת סנכרון GitHub</h2>
-      <p>כדי לשמור את הנתונים בענן ולסנכרן בין מכשירים, תצטרך טוקן גישה ל-GitHub.</p>
-      <ol>
-        <li>כנס ל: <a href="https://github.com/settings/tokens?type=beta" target="_blank">github.com/settings/tokens</a></li>
-        <li>לחץ <strong>Generate new token</strong></li>
-        <li>תן שם (למשל: "Cocktails App")</li>
-        <li>תחת <strong>Repository access</strong> — בחר <em>Only select repositories</em> ← <strong>eitan357/Cocktails</strong></li>
-        <li>תחת <strong>Permissions → Contents</strong> — בחר <strong>Read and write</strong></li>
-        <li>לחץ <strong>Generate token</strong> והעתק</li>
-      </ol>
-      <label class="modal-label">טוקן GitHub</label>
-      <input id="token-input" class="modal-input" type="password" placeholder="github_pat_..." />
-      <label class="modal-label">שם הענף (Branch)</label>
-      <input id="branch-input" class="modal-input" type="text" value="main" placeholder="main" />
-      <p style="margin-top:6px;font-size:0.8rem;color:#6a5a4a;">
-        הענף שבו האפליקציה מאוחסנת ב-GitHub (הענף שבחרת ב-GitHub Pages)
-      </p>
-      <div id="modal-error" class="modal-error"></div>
-      <button class="modal-save-btn" onclick="saveSettings()">שמור והתחל</button>
-    </div>
-  </div>
-
-  <!-- Sync Badge -->
-  <div id="sync-badge" class="sync-badge" onclick="onSyncBadgeClick()"></div>
-
-  <!-- Tab Nav -->
   <nav class="tab-nav">
     <button class="tab-btn active" data-page="inventory" onclick="showPage('inventory')">📦 מלאי</button>
     <button class="tab-btn" data-page="recipes" onclick="showPage('recipes')">🍸 מתכונים</button>
-    <button class="settings-btn" onclick="openSettings()" title="הגדרות">⚙️</button>
+    <button class="export-nav-btn" onclick="exportHTML()" title="שמור גרסה">💾</button>
   </nav>
 
   <!-- Inventory Page -->
@@ -291,208 +194,55 @@
   <div id="recipes-page" class="page" style="display:none">
     <h1>🍸 מתכונים</h1>
     <div id="recipes-list"></div>
+    <div class="export-hint">
+      ערכת מתכונים? לחץ 💾 למעלה להוריד קובץ מעודכן ולהעלות לגיטהב — כך השינויים יישמרו לכל מכשיר.
+    </div>
   </div>
 
   <div class="toast" id="toast"></div>
 
   <script>
-    /* ═══════════════════════════════════════════
-       CONSTANTS & STATE
-    ═══════════════════════════════════════════ */
-    const REPO      = 'eitan357/Cocktails';
-    const DATA_FILE = 'cocktail-data.json';
-    const GH_API    = 'https://api.github.com';
-
-    let ghToken  = localStorage.getItem('gh_token')  || '';
-    let ghBranch = localStorage.getItem('gh_branch') || 'main';
-    let ghSha    = localStorage.getItem('gh_sha')    || null;
-    let saveTimer = null;
-
-    /* ═══════════════════════════════════════════
-       NAVIGATION
-    ═══════════════════════════════════════════ */
+    /* ── Navigation ── */
     function showPage(page) {
       document.getElementById('inventory-page').style.display = page === 'inventory' ? 'block' : 'none';
       document.getElementById('recipes-page').style.display  = page === 'recipes'   ? 'block' : 'none';
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.page === page));
     }
 
-    /* ═══════════════════════════════════════════
-       GITHUB SYNC
-    ═══════════════════════════════════════════ */
-    function b64Encode(str) {
-      return btoa(unescape(encodeURIComponent(str)));
-    }
-    function b64Decode(b64) {
-      return decodeURIComponent(escape(atob(b64.replace(/\n/g, ''))));
-    }
+    /* ── Default Data ── */
 
-    async function ghFetch(path, options = {}) {
-      const res = await fetch(GH_API + path, {
-        ...options,
-        headers: {
-          Authorization: `Bearer ${ghToken}`,
-          Accept: 'application/vnd.github.v3+json',
-          'Content-Type': 'application/json',
-          ...(options.headers || {}),
-        },
-      });
-      return res;
-    }
-
-    async function loadFromGitHub() {
-      const res = await ghFetch(`/repos/${REPO}/contents/${DATA_FILE}?ref=${ghBranch}`);
-      if (res.status === 404) return null;
-      if (!res.ok) throw Object.assign(new Error('gh'), { status: res.status });
-      const json = await res.json();
-      ghSha = json.sha;
-      localStorage.setItem('gh_sha', ghSha);
-      return JSON.parse(b64Decode(json.content));
-    }
-
-    async function saveToGitHub() {
-      if (!ghToken) return;
-      setSyncStatus('saving', '⟳ שומר...');
-      const data = { drinks, recipes };
-      const body = {
-        message: 'Update cocktail data',
-        content: b64Encode(JSON.stringify(data)),
-        branch: ghBranch,
-      };
-      if (ghSha) body.sha = ghSha;
-
-      try {
-        const res = await ghFetch(`/repos/${REPO}/contents/${DATA_FILE}`, {
-          method: 'PUT',
-          body: JSON.stringify(body),
-        });
-
-        if (res.status === 409) {
-          // Conflict — fetch latest SHA and retry once
-          const latest = await loadFromGitHub();
-          if (latest) { drinks = latest.drinks; recipes = latest.recipes; render(); renderRecipes(); }
-          body.sha = ghSha;
-          const res2 = await ghFetch(`/repos/${REPO}/contents/${DATA_FILE}`, {
-            method: 'PUT', body: JSON.stringify({ ...body, sha: ghSha }),
-          });
-          if (!res2.ok) throw new Error('conflict retry failed');
-          const j2 = await res2.json();
-          ghSha = j2.content.sha;
-        } else if (!res.ok) {
-          throw Object.assign(new Error('save failed'), { status: res.status });
-        } else {
-          const j = await res.json();
-          ghSha = j.content.sha;
-        }
-
-        localStorage.setItem('gh_sha', ghSha);
-        setSyncStatus('saved', '✓ נשמר');
-        setTimeout(() => hideSyncBadge(), 3000);
-      } catch(e) {
-        const msg = e.status === 401 ? '✗ טוקן לא תקין' : '✗ שגיאת שמירה';
-        setSyncStatus('error', msg);
-      }
-    }
-
-    function scheduleSave() {
-      clearTimeout(saveTimer);
-      setSyncStatus('saving', '⟳ ...');
-      saveTimer = setTimeout(saveToGitHub, 1500);
-    }
-
-    /* ═══════════════════════════════════════════
-       SYNC BADGE UI
-    ═══════════════════════════════════════════ */
-    function setSyncStatus(state, text) {
-      const b = document.getElementById('sync-badge');
-      b.className = `sync-badge visible ${state}`;
-      b.textContent = text;
-    }
-    function hideSyncBadge() {
-      document.getElementById('sync-badge').classList.remove('visible');
-    }
-    function onSyncBadgeClick() {
-      const b = document.getElementById('sync-badge');
-      if (b.classList.contains('error')) saveToGitHub();
-    }
-
-    /* ═══════════════════════════════════════════
-       SETTINGS MODAL
-    ═══════════════════════════════════════════ */
-    function openSettings() {
-      document.getElementById('token-input').value  = ghToken;
-      document.getElementById('branch-input').value = ghBranch;
-      document.getElementById('modal-error').textContent = '';
-      document.getElementById('setup-modal').classList.remove('hidden');
-    }
-
-    async function saveSettings() {
-      const token  = document.getElementById('token-input').value.trim();
-      const branch = document.getElementById('branch-input').value.trim() || 'main';
-      const errEl  = document.getElementById('modal-error');
-
-      if (!token) { errEl.textContent = 'יש להזין טוקן'; return; }
-
-      errEl.textContent = 'בודק...';
-
-      // Quick validation: try to fetch the file (or check repo access)
-      const testRes = await fetch(
-        `${GH_API}/repos/${REPO}/contents/${DATA_FILE}?ref=${branch}`,
-        { headers: { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github.v3+json' } }
-      );
-
-      if (testRes.status === 401) { errEl.textContent = '✗ הטוקן לא תקין'; return; }
-      if (testRes.status === 404 && branch !== ghBranch) {
-        // File may not exist yet on this branch — that's OK, check repo access
-        const repoRes = await fetch(`${GH_API}/repos/${REPO}`,
-          { headers: { Authorization: `Bearer ${token}` } });
-        if (!repoRes.ok) { errEl.textContent = '✗ לא ניתן לגשת לריפו — בדוק הרשאות'; return; }
-      }
-
-      ghToken  = token;
-      ghBranch = branch;
-      ghSha    = null;
-      localStorage.setItem('gh_token', token);
-      localStorage.setItem('gh_branch', branch);
-      localStorage.removeItem('gh_sha');
-
-      document.getElementById('setup-modal').classList.add('hidden');
-      await init();
-    }
-
-    /* ═══════════════════════════════════════════
-       INVENTORY
-    ═══════════════════════════════════════════ */
+    // DEFAULT_DRINKS_START
     const DEFAULT_DRINKS = ['אוסקר', 'רייצ׳ל', 'אלגין', 'דאבל', 'מוברק', 'בריין', "צ'יליאן", 'דינו', 'דדי'];
-    let drinks = [];
+    // DEFAULT_DRINKS_END
 
-    function localDrinks() {
+    // DEFAULT_RECIPES_START
+    const DEFAULT_RECIPES = [{"id":1,"name":"אולד פאשן","ingredients":"וויסקי – 60 מ\"ל\nסוכר – 10 מ\"ל\nאנגוסטורה – 3 טיפות","preparation":"בכוס ערבוב עם כפית, לסנן ללואו בול מקוררת.","serving":"קוביית קרח וקליפת תפוז.","variations":""},{"id":2,"name":"נגרוני","ingredients":"ג'ין – 30 מ\"ל\nורמוט אדום – 30 מ\"ל\nקמפרי – 30 מ\"ל","preparation":"בכוס ערבוב עם כפית, 15 ערבובים, לסנן ללואו בול מקוררת.","serving":"קוביית קרח וקליפת תפוז.","variations":""},{"id":3,"name":"מוסקו מיול","ingredients":"וודקה – 60 מ\"ל\nלימון – 30 מ\"ל\nסוכר – 15 מ\"ל\nג'ינג'ר ביר – להסגרת הכוס","preparation":"בשייקר הקטן עם קצת קרח גרוס, להעביר להיי בול לסגור עם הג'ינג'ר ביר.","serving":"4 טיפות אנגוסטורה, נענע ולימון.","variations":""},{"id":4,"name":"לונדון מיול","ingredients":"ג'ין – 60 מ\"ל\nלימון – 30 מ\"ל\nסוכר – 15 מ\"ל\nג'ינג'ר ביר – להסגרת הכוס","preparation":"כמו מוסקו מיול.","serving":"","variations":""},{"id":5,"name":"מרגריטה","ingredients":"טקילה – 50 מ\"ל\nלימון – 30 מ\"ל\nטריפל סק – 30 מ\"ל\nסוכר – 15 מ\"ל","preparation":"בשייקר קטן עם קרח גרוס לשקשק, לסנן סינון כפול לכוס דאבל מוצננת עם כתר מלח ולימון בפנים.","serving":"","variations":"מרגריטה בטעמים: תוספת מיץ (מנגו/תות) – 20 מ\"ל.\nמרגריטה חריפה: תוספת צ'ילי – 15 מ\"ל."},{"id":6,"name":"מוחיטו","ingredients":"רום לבן – 60 מ\"ל\nסוכר – 30 מ\"ל\nלימון קטן / חצי גדול\nעלי נענע\nסודה","preparation":"למעוך את הלימון בתוך הכוס, להוסיף נענע ולמעוך שוב. להוסיף רום וקרח רגיל, למזוג להיי בול, השלמת קרח גרוס וסודה.","serving":"2 טיפות אנגוסטורה, נענע ולימון.","variations":""},{"id":7,"name":"קאשסה / אפרול","ingredients":"אפרול – 60 מ\"ל\nקאווה – 90/120 מ\"ל\nסודה – לסגירה","preparation":"להכניס לכוס יין קרח ותפוז, לשים את האפרול, קאווה וסודה לפי הסדר ולהגיש עם קש.","serving":"","variations":""},{"id":8,"name":"וויסקי סאוור","ingredients":"וויסקי – 60 מ\"ל\nלימון – 50 מ\"ל\nסוכר – 30 מ\"ל\nחלבון ביצה","preparation":"שקשוק יבש (ללא קרח) ואז שקשוק עם קרח. למזוג ללואו בול מקוררת.","serving":"קובייה גדולה, טיפות אנגוסטורה וקליפת תפוז.","variations":""},{"id":9,"name":"קוקטייל סאוור (בחירה)","ingredients":"וודקה / ג'ין – 30 מ\"ל\nלימון – 30 מ\"ל\nסוכר – 20 מ\"ל","preparation":"לסנן ללואו בול מקוררת עם לימון.","serving":"","variations":""},{"id":10,"name":"ג'זמין","ingredients":"ג'ין – 45 מ\"ל\nלימון – 20 מ\"ל\nטריפל סק – 7.5 מ\"ל\nקמפרי – 7.5 מ\"ל\nסוכר – 7.5 מ\"ל\n(חלופה: 30 מ\"ל מכל מרכיב למעט הסוכר)","preparation":"לשקשק ולסנן לכוס דאבל עם קליפת תפוז.","serving":"","variations":""},{"id":11,"name":"קוסמופוליטן","ingredients":"וודקה – 50 מ\"ל\nמיץ חמוציות – 30 מ\"ל\nלימון – 30 מ\"ל\nטריפל סק – 20 מ\"ל\nסוכר – 15 מ\"ל","preparation":"3/4 כוס קרח בשייקר, סינון כפול לכוס דאבל מקוררת.","serving":"קליפת תפוז בפנים או על הכוס.","variations":""},{"id":12,"name":"בייזל סמאש","ingredients":"ג'ין – 60 מ\"ל\nלימון – 30 מ\"ל\nסוכר – 20 מ\"ל\nחלבון ביצה – 1 יחידה\nעלי בזיליקום","preparation":"לכתוש בזיליקום בכוס ערבוב. שקשוק יבש, ואז שקשוק עם קרח. סינון כפול ללואו בול מקוררת.","serving":"קובייה גדולה ובזיליקום לקישוט (בלי קש).","variations":""},{"id":13,"name":"מנהטן","ingredients":"וויסקי – 60 מ\"ל\nורמוט אדום – 30 מ\"ל\nאנגוסטורה – 3 טיפות","preparation":"בכוס ערבוב עם כפית, סינון כפול לכוס דאבל.","serving":"קליפת תפוז ודובדבן.","variations":""},{"id":14,"name":"אספרסו מרטיני","ingredients":"וודקה – 45 מ\"ל\nקפה (אספרסו) – 30 מ\"ל\nליקר קפה – 30 מ\"ל\nסוכר – 10 מ\"ל (אופציונלי)\nפולי קפה (לגירוד מעל)","preparation":"שקשוק חזק עם קרח רגיל במשך כמה דקות לקבלת קצף אחיד.","serving":"כוס מקוררת עם פולי קפה מגורדים מעל.","variations":""}];
+    // DEFAULT_RECIPES_END
+
+    /* ── Inventory ── */
+    let drinks = (() => {
       try { const s = localStorage.getItem('cocktail_drinks'); if (s) return JSON.parse(s); } catch(e) {}
       return DEFAULT_DRINKS.map((name, i) => ({ id: i + 1, name, qty: '' }));
-    }
-    function cacheLocal() {
-      localStorage.setItem('cocktail_drinks', JSON.stringify(drinks));
-      localStorage.setItem('cocktail_recipes', JSON.stringify(recipes));
-    }
+    })();
+
+    function saveDrinks() { localStorage.setItem('cocktail_drinks', JSON.stringify(drinks)); }
 
     function render() {
       document.getElementById('list').innerHTML = drinks.map((d, i) => `
         <div class="drink-row">
           <button class="delete-btn" onclick="deleteDrink(${i})">✕</button>
           <input class="drink-name" type="text" value="${escHtml(d.name)}" placeholder="שם משקה"
-            onchange="drinks[${i}].name=this.value.trim();onChange()"/>
+            onchange="drinks[${i}].name=this.value.trim();saveDrinks()"/>
           <div class="qty-controls">
             <button class="qty-btn" onclick="changeQty(${i},-0.5)">−</button>
             <input class="qty-input" type="number" inputmode="decimal" enterkeyhint="next"
               value="${d.qty}" step="0.5" min="0" placeholder="כמות"
-              oninput="drinks[${i}].qty=this.value;onChange()"
+              oninput="drinks[${i}].qty=this.value;saveDrinks()"
               onkeydown="qtyKeydown(event,${i})"/>
             <button class="qty-btn" onclick="changeQty(${i},0.5)">+</button>
           </div>
         </div>`).join('');
     }
-
-    function onChange() { cacheLocal(); scheduleSave(); }
 
     function qtyKeydown(e, i) {
       if (e.key !== 'Enter') return;
@@ -506,16 +256,16 @@
       const next = Math.max(0, parseFloat(((parseFloat(input.value) || 0) + delta).toFixed(2)));
       drinks[i].qty = next === 0 ? '0' : String(next);
       input.value = drinks[i].qty;
-      onChange();
+      saveDrinks();
     }
 
     function deleteDrink(i) {
       if (drinks.length === 1) { alert('חייב להישאר לפחות משקה אחד'); return; }
-      drinks.splice(i, 1); onChange(); render();
+      drinks.splice(i, 1); saveDrinks(); render();
     }
 
     function addDrink() {
-      drinks.push({ id: Date.now(), name: '', qty: '' }); onChange(); render();
+      drinks.push({ id: Date.now(), name: '', qty: '' }); saveDrinks(); render();
       setTimeout(() => { const a = document.querySelectorAll('.drink-name'); a[a.length-1].focus(); }, 30);
     }
 
@@ -533,72 +283,13 @@
         });
     }
 
-    /* ═══════════════════════════════════════════
-       RECIPES
-    ═══════════════════════════════════════════ */
-    const DEFAULT_RECIPES = [
-      { id:1,  name:'אולד פאשן',
-        ingredients:`וויסקי – 60 מ"ל\nסוכר – 10 מ"ל\nאנגוסטורה – 3 טיפות`,
-        preparation:'בכוס ערבוב עם כפית, לסנן ללואו בול מקוררת.',
-        serving:'קוביית קרח וקליפת תפוז.', variations:'' },
-      { id:2,  name:'נגרוני',
-        ingredients:`ג'ין – 30 מ"ל\nורמוט אדום – 30 מ"ל\nקמפרי – 30 מ"ל`,
-        preparation:'בכוס ערבוב עם כפית, 15 ערבובים, לסנן ללואו בול מקוררת.',
-        serving:'קוביית קרח וקליפת תפוז.', variations:'' },
-      { id:3,  name:'מוסקו מיול',
-        ingredients:`וודקה – 60 מ"ל\nלימון – 30 מ"ל\nסוכר – 15 מ"ל\nג'ינג'ר ביר – להסגרת הכוס`,
-        preparation:`בשייקר הקטן עם קצת קרח גרוס, להעביר להיי בול לסגור עם הג'ינג'ר ביר.`,
-        serving:`4 טיפות אנגוסטורה, נענע ולימון.`, variations:'' },
-      { id:4,  name:'לונדון מיול',
-        ingredients:`ג'ין – 60 מ"ל\nלימון – 30 מ"ל\nסוכר – 15 מ"ל\nג'ינג'ר ביר – להסגרת הכוס`,
-        preparation:`כמו מוסקו מיול.`, serving:'', variations:'' },
-      { id:5,  name:'מרגריטה',
-        ingredients:`טקילה – 50 מ"ל\nלימון – 30 מ"ל\nטריפל סק – 30 מ"ל\nסוכר – 15 מ"ל`,
-        preparation:`בשייקר קטן עם קרח גרוס לשקשק, לסנן סינון כפול לכוס דאבל מוצננת עם כתר מלח ולימון בפנים.`,
-        serving:'',
-        variations:`מרגריטה בטעמים: תוספת מיץ (מנגו/תות) – 20 מ"ל.\nמרגריטה חריפה: תוספת צ'ילי – 15 מ"ל.` },
-      { id:6,  name:'מוחיטו',
-        ingredients:`רום לבן – 60 מ"ל\nסוכר – 30 מ"ל\nלימון קטן / חצי גדול\nעלי נענע\nסודה`,
-        preparation:`למעוך את הלימון בתוך הכוס, להוסיף נענע ולמעוך שוב. להוסיף רום וקרח רגיל, למזוג להיי בול, השלמת קרח גרוס וסודה.`,
-        serving:`2 טיפות אנגוסטורה, נענע ולימון.`, variations:'' },
-      { id:7,  name:'קאשסה / אפרול',
-        ingredients:`אפרול – 60 מ"ל\nקאווה – 90/120 מ"ל\nסודה – לסגירה`,
-        preparation:`להכניס לכוס יין קרח ותפוז, לשים את האפרול, קאווה וסודה לפי הסדר ולהגיש עם קש.`,
-        serving:'', variations:'' },
-      { id:8,  name:'וויסקי סאוור',
-        ingredients:`וויסקי – 60 מ"ל\nלימון – 50 מ"ל\nסוכר – 30 מ"ל\nחלבון ביצה`,
-        preparation:`שקשוק יבש (ללא קרח) ואז שקשוק עם קרח. למזוג ללואו בול מקוררת.`,
-        serving:`קובייה גדולה, טיפות אנגוסטורה וקליפת תפוז.`, variations:'' },
-      { id:9,  name:`קוקטייל סאוור (בחירה)`,
-        ingredients:`וודקה / ג'ין – 30 מ"ל\nלימון – 30 מ"ל\nסוכר – 20 מ"ל`,
-        preparation:`לסנן ללואו בול מקוררת עם לימון.`, serving:'', variations:'' },
-      { id:10, name:`ג'זמין`,
-        ingredients:`ג'ין – 45 מ"ל\nלימון – 20 מ"ל\nטריפל סק – 7.5 מ"ל\nקמפרי – 7.5 מ"ל\nסוכר – 7.5 מ"ל\n(חלופה: 30 מ"ל מכל מרכיב למעט הסוכר)`,
-        preparation:`לשקשק ולסנן לכוס דאבל עם קליפת תפוז.`, serving:'', variations:'' },
-      { id:11, name:'קוסמופוליטן',
-        ingredients:`וודקה – 50 מ"ל\nמיץ חמוציות – 30 מ"ל\nלימון – 30 מ"ל\nטריפל סק – 20 מ"ל\nסוכר – 15 מ"ל`,
-        preparation:`3/4 כוס קרח בשייקר, סינון כפול לכוס דאבל מקוררת.`,
-        serving:`קליפת תפוז בפנים או על הכוס.`, variations:'' },
-      { id:12, name:'בייזל סמאש',
-        ingredients:`ג'ין – 60 מ"ל\nלימון – 30 מ"ל\nסוכר – 20 מ"ל\nחלבון ביצה – 1 יחידה\nעלי בזיליקום`,
-        preparation:`לכתוש בזיליקום בכוס ערבוב. שקשוק יבש, ואז שקשוק עם קרח. סינון כפול ללואו בול מקוררת.`,
-        serving:`קובייה גדולה ובזיליקום לקישוט (בלי קש).`, variations:'' },
-      { id:13, name:'מנהטן',
-        ingredients:`וויסקי – 60 מ"ל\nורמוט אדום – 30 מ"ל\nאנגוסטורה – 3 טיפות`,
-        preparation:`בכוס ערבוב עם כפית, סינון כפול לכוס דאבל.`,
-        serving:`קליפת תפוז ודובדבן.`, variations:'' },
-      { id:14, name:'אספרסו מרטיני',
-        ingredients:`וודקה – 45 מ"ל\nקפה (אספרסו) – 30 מ"ל\nליקר קפה – 30 מ"ל\nסוכר – 10 מ"ל (אופציונלי)\nפולי קפה (לגירוד מעל)`,
-        preparation:`שקשוק חזק עם קרח רגיל במשך כמה דקות לקבלת קצף אחיד.`,
-        serving:`כוס מקוררת עם פולי קפה מגורדים מעל.`, variations:'' },
-    ];
-
-    let recipes = [];
-
-    function localRecipes() {
+    /* ── Recipes ── */
+    let recipes = (() => {
       try { const s = localStorage.getItem('cocktail_recipes'); if (s) return JSON.parse(s); } catch(e) {}
       return JSON.parse(JSON.stringify(DEFAULT_RECIPES));
-    }
+    })();
+
+    function saveRecipes() { localStorage.setItem('cocktail_recipes', JSON.stringify(recipes)); }
 
     function renderRecipes() {
       const FIELDS = [
@@ -655,7 +346,7 @@
         const t = document.getElementById(`rtitle-${id}`);
         if (t) t.textContent = value;
       }
-      onChange();
+      saveRecipes();
     }
 
     function autoResize(el) {
@@ -663,9 +354,37 @@
       el.style.height = el.scrollHeight + 'px';
     }
 
-    /* ═══════════════════════════════════════════
-       SHARED UTILS
-    ═══════════════════════════════════════════ */
+    /* ── Export HTML ── */
+    async function exportHTML() {
+      try {
+        showToast('מכין קובץ...');
+        const src = await fetch(location.href, { cache: 'no-store' }).then(r => r.text());
+
+        const drinkNames = drinks.map(d => d.name);
+        const newDrinks  = 'const DEFAULT_DRINKS = ' + JSON.stringify(drinkNames) + ';';
+        const newRecipes = 'const DEFAULT_RECIPES = ' + JSON.stringify(recipes) + ';';
+
+        const out = src
+          .replace(/\/\/ DEFAULT_DRINKS_START[\s\S]*?\/\/ DEFAULT_DRINKS_END/,
+                   '// DEFAULT_DRINKS_START\n    ' + newDrinks + '\n    // DEFAULT_DRINKS_END')
+          .replace(/\/\/ DEFAULT_RECIPES_START[\s\S]*?\/\/ DEFAULT_RECIPES_END/,
+                   '// DEFAULT_RECIPES_START\n    ' + newRecipes + '\n    // DEFAULT_RECIPES_END');
+
+        const blob = new Blob([out], { type: 'text/html;charset=utf-8' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'index.html';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(a.href);
+        showToast('✓ index.html הורד — העלה לגיטהב!');
+      } catch(e) {
+        showToast('שגיאה בהורדה — נסה שוב');
+      }
+    }
+
+    /* ── Utils ── */
     function escHtml(s) {
       return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     }
@@ -675,50 +394,12 @@
       const t = document.getElementById('toast');
       t.textContent = msg; t.classList.add('visible');
       clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => t.classList.remove('visible'), 2500);
+      toastTimer = setTimeout(() => t.classList.remove('visible'), 3000);
     }
 
-    /* ═══════════════════════════════════════════
-       INIT
-    ═══════════════════════════════════════════ */
-    async function init() {
-      document.getElementById('loading-overlay').style.display = 'flex';
-
-      if (!ghToken) {
-        document.getElementById('loading-overlay').style.display = 'none';
-        openSettings();
-        drinks  = localDrinks();
-        recipes = localRecipes();
-        render(); renderRecipes();
-        return;
-      }
-
-      try {
-        const data = await loadFromGitHub();
-        if (data) {
-          drinks  = data.drinks  || localDrinks();
-          recipes = data.recipes || localRecipes();
-          cacheLocal();
-        } else {
-          // File doesn't exist yet — use local data and do first save
-          drinks  = localDrinks();
-          recipes = localRecipes();
-          await saveToGitHub();
-        }
-        setSyncStatus('saved', '✓ מסונכרן');
-        setTimeout(hideSyncBadge, 3000);
-      } catch(e) {
-        drinks  = localDrinks();
-        recipes = localRecipes();
-        setSyncStatus('error', '✗ לא מחובר (מקומי)');
-      }
-
-      document.getElementById('loading-overlay').style.display = 'none';
-      render();
-      renderRecipes();
-    }
-
-    init();
+    /* ── Init ── */
+    render();
+    renderRecipes();
   </script>
 </body>
 </html>
