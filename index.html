@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>מלאי קוקטיילים</title>
+  <title>קוקטיילים</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -12,8 +12,35 @@
       background: #12100e;
       color: #f0e6d8;
       min-height: 100vh;
-      padding: 24px 16px 80px;
+      padding-top: 56px;
+      padding-bottom: 40px;
     }
+
+    /* ---- Tab Nav ---- */
+    .tab-nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      display: flex;
+      background: #1e1a16;
+      border-bottom: 1px solid #2e2820;
+      z-index: 100;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 15px 8px;
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      color: #7a6a5a;
+      font-size: 1rem;
+      cursor: pointer;
+      font-family: inherit;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .tab-btn.active { color: #d4a058; border-bottom-color: #d4a058; }
+
+    /* ---- Page ---- */
+    .page { max-width: 480px; margin: 0 auto; padding: 24px 16px; }
 
     h1 {
       text-align: center;
@@ -24,12 +51,7 @@
       text-shadow: 0 0 30px rgba(212,160,88,0.3);
     }
 
-    .container {
-      max-width: 480px;
-      margin: 0 auto;
-    }
-
-    /* ---- Drink Row ---- */
+    /* ---- Inventory ---- */
     .drink-row {
       display: flex;
       align-items: center;
@@ -41,7 +63,6 @@
       box-shadow: 0 2px 10px rgba(0,0,0,0.5);
       border: 1px solid #2e2820;
     }
-
     .drink-name {
       flex: 1;
       background: transparent;
@@ -53,39 +74,23 @@
       text-align: right;
       min-width: 0;
     }
-    .drink-name:focus {
-      outline: none;
-      border-bottom-color: #d4a058;
-    }
+    .drink-name:focus { outline: none; border-bottom-color: #d4a058; }
     .drink-name::placeholder { color: #5a4a3a; }
-
-    /* ---- Qty Controls ---- */
-    .qty-controls {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex-shrink: 0;
-    }
-
+    .qty-controls { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
     .qty-btn {
-      width: 38px;
-      height: 38px;
+      width: 38px; height: 38px;
       border-radius: 50%;
       border: none;
       background: #c8853a;
       color: #fff;
       font-size: 1.4rem;
-      line-height: 1;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: flex; align-items: center; justify-content: center;
       user-select: none;
       transition: background 0.15s;
       flex-shrink: 0;
     }
     .qty-btn:active { background: #a06828; }
-
     .qty-input {
       width: 58px;
       text-align: center;
@@ -98,25 +103,15 @@
     }
     .qty-input:focus { outline: none; border-color: #d4a058; }
     .qty-input::placeholder { color: #4a3a2a; font-size: 0.85rem; }
-
-    /* ---- Delete Button ---- */
     .delete-btn {
-      background: none;
-      border: none;
-      color: #4a3a2a;
-      cursor: pointer;
-      font-size: 1.1rem;
-      padding: 4px 6px;
-      line-height: 1;
-      transition: color 0.15s;
-      flex-shrink: 0;
+      background: none; border: none;
+      color: #4a3a2a; cursor: pointer;
+      font-size: 1.1rem; padding: 4px 6px;
+      line-height: 1; transition: color 0.15s; flex-shrink: 0;
     }
     .delete-btn:hover { color: #c07050; }
-
-    /* ---- Add Button ---- */
     .add-btn {
-      display: block;
-      width: 100%;
+      display: block; width: 100%;
       margin: 6px 0 20px;
       padding: 13px;
       background: transparent;
@@ -129,11 +124,8 @@
       transition: border-color 0.15s, color 0.15s;
     }
     .add-btn:hover { border-color: #d4a058; color: #f0e6d8; }
-
-    /* ---- Copy Button ---- */
     .copy-btn {
-      display: block;
-      width: 100%;
+      display: block; width: 100%;
       padding: 16px;
       background: #c8853a;
       border: none;
@@ -149,11 +141,97 @@
     .copy-btn:hover { background: #b07030; }
     .copy-btn:active { background: #a06828; }
 
+    /* ---- Recipe Cards ---- */
+    .recipe-card {
+      background: #1e1a16;
+      border-radius: 14px;
+      margin-bottom: 10px;
+      border: 1px solid #2e2820;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+    }
+    .recipe-header {
+      display: flex;
+      align-items: center;
+      padding: 14px 16px;
+      cursor: pointer;
+      gap: 10px;
+      user-select: none;
+    }
+    .recipe-header:active { background: #261e18; }
+    .recipe-num {
+      color: #8a6a4a;
+      font-size: 0.85rem;
+      font-weight: bold;
+      min-width: 22px;
+    }
+    .recipe-title {
+      flex: 1;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #f0e6d8;
+    }
+    .recipe-arrow {
+      color: #c8853a;
+      font-size: 1.3rem;
+      font-weight: bold;
+      transition: transform 0.25s;
+    }
+    .recipe-card.open .recipe-arrow { transform: rotate(90deg); }
+
+    .recipe-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease;
+    }
+    .recipe-card.open .recipe-body { max-height: 3000px; }
+
+    .recipe-inner {
+      padding: 4px 16px 18px;
+      border-top: 1px solid #2e2820;
+    }
+    .recipe-section { margin-top: 14px; }
+    .section-label {
+      font-size: 0.75rem;
+      font-weight: bold;
+      color: #c8853a;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .section-textarea {
+      width: 100%;
+      background: #0e0c0a;
+      border: 1px solid #2e2820;
+      border-radius: 8px;
+      color: #f0e6d8;
+      font-size: 0.95rem;
+      padding: 8px 10px;
+      resize: none;
+      font-family: inherit;
+      line-height: 1.65;
+      overflow: hidden;
+      min-height: 38px;
+    }
+    .section-textarea:focus { outline: none; border-color: #c8853a; }
+    .section-textarea::placeholder { color: #4a3a2a; }
+    .name-input {
+      width: 100%;
+      background: #0e0c0a;
+      border: 1px solid #2e2820;
+      border-radius: 8px;
+      color: #f0e6d8;
+      font-size: 1.05rem;
+      font-weight: 600;
+      padding: 8px 10px;
+      font-family: inherit;
+    }
+    .name-input:focus { outline: none; border-color: #c8853a; }
+
     /* ---- Toast ---- */
     .toast {
       position: fixed;
-      bottom: 28px;
-      left: 50%;
+      bottom: 28px; left: 50%;
       transform: translateX(-50%) translateY(20px);
       background: #2a2018;
       border: 1px solid #d4a058;
@@ -165,151 +243,249 @@
       pointer-events: none;
       transition: opacity 0.25s, transform 0.25s;
       white-space: nowrap;
+      z-index: 200;
     }
-    .toast.visible {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
+    .toast.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
   </style>
 </head>
 <body>
-  <div class="container">
+
+  <nav class="tab-nav">
+    <button class="tab-btn active" data-page="inventory" onclick="showPage('inventory')">📦 מלאי</button>
+    <button class="tab-btn" data-page="recipes" onclick="showPage('recipes')">🍸 מתכונים</button>
+  </nav>
+
+  <!-- Inventory Page -->
+  <div id="inventory-page" class="page">
     <h1>🍹 מלאי קוקטיילים</h1>
     <div id="list"></div>
     <button class="add-btn" onclick="addDrink()">＋ הוסף משקה</button>
     <button class="copy-btn" onclick="copyList()">📋 &nbsp;העתק רשימה</button>
   </div>
+
+  <!-- Recipes Page -->
+  <div id="recipes-page" class="page" style="display:none">
+    <h1>🍸 מתכונים</h1>
+    <div id="recipes-list"></div>
+  </div>
+
   <div class="toast" id="toast"></div>
 
   <script>
-    const DEFAULT_DRINKS = [
-      'אוסקר', 'רייצ׳ל', 'אלגין', 'דאבל', 'מוברק', 'בריין', "צ'יליאן", 'דינו', 'דדי'
-    ];
+    /* ── Navigation ── */
+    function showPage(page) {
+      document.getElementById('inventory-page').style.display = page === 'inventory' ? 'block' : 'none';
+      document.getElementById('recipes-page').style.display  = page === 'recipes'   ? 'block' : 'none';
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.page === page));
+    }
 
+    /* ── Inventory ── */
+    const DEFAULT_DRINKS = ['אוסקר', 'רייצ׳ל', 'אלגין', 'דאבל', 'מוברק', 'בריין', "צ'יליאן", 'דינו', 'דדי'];
     let drinks = loadDrinks();
 
     function loadDrinks() {
-      try {
-        const saved = localStorage.getItem('cocktail_drinks');
-        if (saved) return JSON.parse(saved);
-      } catch (e) {}
+      try { const s = localStorage.getItem('cocktail_drinks'); if (s) return JSON.parse(s); } catch(e) {}
       return DEFAULT_DRINKS.map((name, i) => ({ id: i + 1, name, qty: '' }));
     }
-
-    function save() {
-      localStorage.setItem('cocktail_drinks', JSON.stringify(drinks));
-    }
+    function saveDrinks() { localStorage.setItem('cocktail_drinks', JSON.stringify(drinks)); }
 
     function render() {
-      const list = document.getElementById('list');
-      list.innerHTML = drinks.map((d, i) => `
-        <div class="drink-row" data-index="${i}">
-          <button class="delete-btn" onclick="deleteDrink(${i})" title="מחק">✕</button>
-          <input
-            class="drink-name"
-            type="text"
-            value="${escHtml(d.name)}"
-            placeholder="שם משקה"
-            onchange="updateName(${i}, this.value)"
-          />
+      document.getElementById('list').innerHTML = drinks.map((d, i) => `
+        <div class="drink-row">
+          <button class="delete-btn" onclick="deleteDrink(${i})">✕</button>
+          <input class="drink-name" type="text" value="${escHtml(d.name)}" placeholder="שם משקה"
+            onchange="drinks[${i}].name=this.value.trim();saveDrinks()"/>
           <div class="qty-controls">
-            <button class="qty-btn" onclick="changeQty(${i}, -0.5)">−</button>
-            <input
-              class="qty-input"
-              type="number"
-              inputmode="decimal"
-              enterkeyhint="next"
-              value="${d.qty}"
-              step="0.5"
-              min="0"
-              placeholder="כמות"
-              onchange="updateQty(${i}, this.value)"
-              oninput="updateQty(${i}, this.value)"
-              onkeydown="qtyKeydown(event, ${i})"
-            />
-            <button class="qty-btn" onclick="changeQty(${i}, 0.5)">+</button>
+            <button class="qty-btn" onclick="changeQty(${i},-0.5)">−</button>
+            <input class="qty-input" type="number" inputmode="decimal" enterkeyhint="next"
+              value="${d.qty}" step="0.5" min="0" placeholder="כמות"
+              oninput="drinks[${i}].qty=this.value;saveDrinks()"
+              onkeydown="qtyKeydown(event,${i})"/>
+            <button class="qty-btn" onclick="changeQty(${i},0.5)">+</button>
           </div>
-        </div>
-      `).join('');
+        </div>`).join('');
     }
 
     function qtyKeydown(e, i) {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        const inputs = document.querySelectorAll('.qty-input');
-        const next = inputs[i + 1];
-        if (next) next.focus();
-      }
-    }
-
-    function escHtml(str) {
-      return str.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    }
-
-    function updateName(i, val) {
-      drinks[i].name = val.trim();
-      save();
-    }
-
-    function updateQty(i, val) {
-      drinks[i].qty = val;
-      save();
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      const all = document.querySelectorAll('.qty-input');
+      if (all[i + 1]) all[i + 1].focus();
     }
 
     function changeQty(i, delta) {
-      const rows = document.getElementById('list').querySelectorAll('.drink-row');
-      const input = rows[i].querySelector('.qty-input');
-      const current = parseFloat(input.value) || 0;
-      const next = Math.max(0, parseFloat((current + delta).toFixed(2)));
+      const input = document.querySelectorAll('.qty-input')[i];
+      const next = Math.max(0, parseFloat(((parseFloat(input.value) || 0) + delta).toFixed(2)));
       drinks[i].qty = next === 0 ? '0' : String(next);
-      save();
+      saveDrinks();
       input.value = drinks[i].qty;
     }
 
     function deleteDrink(i) {
       if (drinks.length === 1) { alert('חייב להישאר לפחות משקה אחד'); return; }
-      drinks.splice(i, 1);
-      save();
-      render();
+      drinks.splice(i, 1); saveDrinks(); render();
     }
 
     function addDrink() {
-      drinks.push({ id: Date.now(), name: '', qty: '' });
-      save();
-      render();
-      setTimeout(() => {
-        const inputs = document.querySelectorAll('.drink-name');
-        inputs[inputs.length - 1].focus();
-      }, 30);
+      drinks.push({ id: Date.now(), name: '', qty: '' }); saveDrinks(); render();
+      setTimeout(() => { const a = document.querySelectorAll('.drink-name'); a[a.length-1].focus(); }, 30);
     }
 
     function copyList() {
-      const lines = drinks
-        .filter(d => d.name.trim() !== '' && d.qty !== '')
-        .map(d => {
-          const num = parseFloat(d.qty);
-          const display = num === 0 ? 'נגמר' : d.qty;
-          return `${d.name} - ${display}`;
-        });
-
-      if (lines.length === 0) {
-        showToast('אין כמויות למלאי 🤷');
-        return;
-      }
-
+      const lines = drinks.filter(d => d.name.trim() && d.qty !== '')
+        .map(d => `${d.name} - ${parseFloat(d.qty) === 0 ? 'נגמר' : d.qty}`);
+      if (!lines.length) { showToast('אין כמויות למלאי 🤷'); return; }
       navigator.clipboard.writeText(lines.join('\n'))
         .then(() => showToast('✓ הרשימה הועתקה ללוח!'))
         .catch(() => {
-          const ta = document.createElement('textarea');
-          ta.value = lines.join('\n');
-          ta.style.position = 'fixed';
-          ta.style.opacity = '0';
-          document.body.appendChild(ta);
-          ta.select();
-          document.execCommand('copy');
-          document.body.removeChild(ta);
-          showToast('✓ הרשימה הועתקה ללוח!');
+          const ta = Object.assign(document.createElement('textarea'),
+            { value: lines.join('\n'), style: 'position:fixed;opacity:0' });
+          document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+          document.body.removeChild(ta); showToast('✓ הרשימה הועתקה ללוח!');
         });
+    }
+
+    /* ── Recipes ── */
+    const DEFAULT_RECIPES = [
+      { id:1,  name:'אולד פאשן',
+        ingredients:`וויסקי – 60 מ"ל\nסוכר – 10 מ"ל\nאנגוסטורה – 3 טיפות`,
+        preparation:'בכוס ערבוב עם כפית, לסנן ללואו בול מקוררת.',
+        serving:'קוביית קרח וקליפת תפוז.', variations:'' },
+      { id:2,  name:'נגרוני',
+        ingredients:`ג'ין – 30 מ"ל\nורמוט אדום – 30 מ"ל\nקמפרי – 30 מ"ל`,
+        preparation:`בכוס ערבוב עם כפית, 15 ערבובים, לסנן ללואו בול מקוררת.`,
+        serving:'קוביית קרח וקליפת תפוז.', variations:'' },
+      { id:3,  name:'מוסקו מיול',
+        ingredients:`וודקה – 60 מ"ל\nלימון – 30 מ"ל\nסוכר – 15 מ"ל\nג'ינג'ר ביר – להסגרת הכוס`,
+        preparation:`בשייקר הקטן עם קצת קרח גרוס, להעביר להיי בול לסגור עם הג'ינג'ר ביר.`,
+        serving:`4 טיפות אנגוסטורה, נענע ולימון.`, variations:'' },
+      { id:4,  name:'לונדון מיול',
+        ingredients:`ג'ין – 60 מ"ל\nלימון – 30 מ"ל\nסוכר – 15 מ"ל\nג'ינג'ר ביר – להסגרת הכוס`,
+        preparation:`כמו מוסקו מיול.`,
+        serving:'', variations:'' },
+      { id:5,  name:'מרגריטה',
+        ingredients:`טקילה – 50 מ"ל\nלימון – 30 מ"ל\nטריפל סק – 30 מ"ל\nסוכר – 15 מ"ל`,
+        preparation:`בשייקר קטן עם קרח גרוס לשקשק, לסנן סינון כפול לכוס דאבל מוצננת עם כתר מלח ולימון בפנים.`,
+        serving:'',
+        variations:`מרגריטה בטעמים: תוספת מיץ (מנגו/תות) – 20 מ"ל.\nמרגריטה חריפה: תוספת צ'ילי – 15 מ"ל.` },
+      { id:6,  name:'מוחיטו',
+        ingredients:`רום לבן – 60 מ"ל\nסוכר – 30 מ"ל\nלימון קטן / חצי גדול\nעלי נענע\nסודה`,
+        preparation:`למעוך את הלימון בתוך הכוס, להוסיף נענע ולמעוך שוב. להוסיף רום וקרח רגיל, למזוג להיי בול, השלמת קרח גרוס וסודה.`,
+        serving:`2 טיפות אנגוסטורה, נענע ולימון.`, variations:'' },
+      { id:7,  name:'קאשסה / אפרול',
+        ingredients:`אפרול – 60 מ"ל\nקאווה – 90/120 מ"ל\nסודה – לסגירה`,
+        preparation:`להכניס לכוס יין קרח ותפוז, לשים את האפרול, קאווה וסודה לפי הסדר ולהגיש עם קש.`,
+        serving:'', variations:'' },
+      { id:8,  name:'וויסקי סאוור',
+        ingredients:`וויסקי – 60 מ"ל\nלימון – 50 מ"ל\nסוכר – 30 מ"ל\nחלבון ביצה`,
+        preparation:`שקשוק יבש (ללא קרח) ואז שקשוק עם קרח. למזוג ללואו בול מקוררת.`,
+        serving:`קובייה גדולה, טיפות אנגוסטורה וקליפת תפוז.`, variations:'' },
+      { id:9,  name:`קוקטייל סאוור (בחירה)`,
+        ingredients:`וודקה / ג'ין – 30 מ"ל\nלימון – 30 מ"ל\nסוכר – 20 מ"ל`,
+        preparation:`לסנן ללואו בול מקוררת עם לימון.`,
+        serving:'', variations:'' },
+      { id:10, name:`ג'זמין`,
+        ingredients:`ג'ין – 45 מ"ל\nלימון – 20 מ"ל\nטריפל סק – 7.5 מ"ל\nקמפרי – 7.5 מ"ל\nסוכר – 7.5 מ"ל\n(חלופה: 30 מ"ל מכל מרכיב למעט הסוכר)`,
+        preparation:`לשקשק ולסנן לכוס דאבל עם קליפת תפוז.`,
+        serving:'', variations:'' },
+      { id:11, name:'קוסמופוליטן',
+        ingredients:`וודקה – 50 מ"ל\nמיץ חמוציות – 30 מ"ל\nלימון – 30 מ"ל\nטריפל סק – 20 מ"ל\nסוכר – 15 מ"ל`,
+        preparation:`3/4 כוס קרח בשייקר, סינון כפול לכוס דאבל מקוררת.`,
+        serving:`קליפת תפוז בפנים או על הכוס.`, variations:'' },
+      { id:12, name:'בייזל סמאש',
+        ingredients:`ג'ין – 60 מ"ל\nלימון – 30 מ"ל\nסוכר – 20 מ"ל\nחלבון ביצה – 1 יחידה\nעלי בזיליקום`,
+        preparation:`לכתוש בזיליקום בכוס ערבוב. שקשוק יבש, ואז שקשוק עם קרח. סינון כפול ללואו בול מקוררת.`,
+        serving:`קובייה גדולה ובזיליקום לקישוט (בלי קש).`, variations:'' },
+      { id:13, name:'מנהטן',
+        ingredients:`וויסקי – 60 מ"ל\nורמוט אדום – 30 מ"ל\nאנגוסטורה – 3 טיפות`,
+        preparation:`בכוס ערבוב עם כפית, סינון כפול לכוס דאבל.`,
+        serving:`קליפת תפוז ודובדבן.`, variations:'' },
+      { id:14, name:'אספרסו מרטיני',
+        ingredients:`וודקה – 45 מ"ל\nקפה (אספרסו) – 30 מ"ל\nליקר קפה – 30 מ"ל\nסוכר – 10 מ"ל (אופציונלי)\nפולי קפה (לגירוד מעל)`,
+        preparation:`שקשוק חזק עם קרח רגיל במשך כמה דקות לקבלת קצף אחיד.`,
+        serving:`כוס מקוררת עם פולי קפה מגורדים מעל.`, variations:'' },
+    ];
+
+    let recipes = loadRecipes();
+
+    function loadRecipes() {
+      try { const s = localStorage.getItem('cocktail_recipes'); if (s) return JSON.parse(s); } catch(e) {}
+      return JSON.parse(JSON.stringify(DEFAULT_RECIPES));
+    }
+    function saveRecipes() { localStorage.setItem('cocktail_recipes', JSON.stringify(recipes)); }
+
+    function renderRecipes() {
+      const FIELDS = [
+        { key: 'ingredients',  label: 'מרכיבים' },
+        { key: 'preparation',  label: 'אופן הכנה' },
+        { key: 'serving',      label: 'הגשה' },
+        { key: 'variations',   label: 'גיוונים' },
+      ];
+
+      document.getElementById('recipes-list').innerHTML = recipes.map((r, i) => `
+        <div class="recipe-card" id="card-${r.id}">
+          <div class="recipe-header" onclick="toggleRecipe(${r.id})">
+            <span class="recipe-num">${i + 1}.</span>
+            <span class="recipe-title" id="rtitle-${r.id}">${escHtml(r.name)}</span>
+            <span class="recipe-arrow">›</span>
+          </div>
+          <div class="recipe-body">
+            <div class="recipe-inner">
+              <div class="recipe-section">
+                <div class="section-label">שם</div>
+                <input class="name-input" type="text" id="f-name-${r.id}"
+                  oninput="updateRecipe(${r.id},'name',this.value)"/>
+              </div>
+              ${FIELDS.map(f => `
+              <div class="recipe-section">
+                <div class="section-label">${f.label}</div>
+                <textarea class="section-textarea" id="f-${f.key}-${r.id}" rows="1"
+                  placeholder="${f.label}..."
+                  oninput="updateRecipe(${r.id},'${f.key}',this.value);autoResize(this)"></textarea>
+              </div>`).join('')}
+            </div>
+          </div>
+        </div>`).join('');
+
+      // Populate values after DOM creation (avoids HTML escaping issues)
+      recipes.forEach(r => {
+        const nameEl = document.getElementById(`f-name-${r.id}`);
+        if (nameEl) nameEl.value = r.name;
+        ['ingredients','preparation','serving','variations'].forEach(f => {
+          const el = document.getElementById(`f-${f}-${r.id}`);
+          if (el) { el.value = r[f]; autoResize(el); }
+        });
+      });
+    }
+
+    function toggleRecipe(id) {
+      const card = document.getElementById(`card-${id}`);
+      const opening = !card.classList.contains('open');
+      card.classList.toggle('open');
+      if (opening) {
+        setTimeout(() => card.querySelectorAll('.section-textarea').forEach(autoResize), 50);
+      }
+    }
+
+    function updateRecipe(id, field, value) {
+      const r = recipes.find(x => x.id === id);
+      if (!r) return;
+      r[field] = value;
+      if (field === 'name') {
+        const t = document.getElementById(`rtitle-${id}`);
+        if (t) t.textContent = value;
+      }
+      saveRecipes();
+    }
+
+    function autoResize(el) {
+      el.style.height = 'auto';
+      el.style.height = el.scrollHeight + 'px';
+    }
+
+    /* ── Shared ── */
+    function escHtml(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     }
 
     let toastTimer;
@@ -322,6 +498,7 @@
     }
 
     render();
+    renderRecipes();
   </script>
 </body>
 </html>
