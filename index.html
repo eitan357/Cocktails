@@ -148,6 +148,23 @@
     }
     .name-input:focus { outline: none; border-color: #c8853a; }
 
+    /* Fields locked by default — only editable when card has .editing class */
+    .recipe-card:not(.editing) .section-textarea,
+    .recipe-card:not(.editing) .name-input {
+      pointer-events: none;
+      background: transparent;
+      border-color: transparent;
+      color: #c0b0a0;
+      resize: none;
+    }
+    .recipe-card.editing .recipe-inner { border-top-color: #c8853a; }
+    .editing-badge {
+      display: none;
+      font-size: 0.72rem; color: #c8853a;
+      margin-bottom: 6px; letter-spacing: 0.3px;
+    }
+    .recipe-card.editing .editing-badge { display: block; }
+
     /* ---- Select circle ---- */
     .select-circle {
       width: 26px; height: 26px; min-width: 26px;
@@ -377,6 +394,7 @@
             <span class="recipe-arrow">›</span>
           </div>
           <div class="recipe-body"><div class="recipe-inner">
+            <div class="editing-badge">✏️ מצב עריכה</div>
             <div class="recipe-section">
               <div class="section-label">שם</div>
               <input class="name-input" type="text" id="f-name-${r.id}"
@@ -406,6 +424,7 @@
       const card = document.getElementById(`card-${id}`);
       const opening = !card.classList.contains('open');
       card.classList.toggle('open');
+      if (!opening) card.classList.remove('editing');
       if (opening) setTimeout(() => card.querySelectorAll('.section-textarea').forEach(autoResize), 50);
     }
 
@@ -451,6 +470,7 @@
             <span class="recipe-arrow">›</span>
           </div>
           <div class="recipe-body"><div class="recipe-inner">
+            <div class="editing-badge">✏️ מצב עריכה</div>
             <div class="recipe-section">
               <div class="section-label">שם</div>
               <input class="name-input" type="text" id="sn-${r.id}"
@@ -480,6 +500,7 @@
       const card = document.getElementById(`sc-${id}`);
       const opening = !card.classList.contains('open');
       card.classList.toggle('open');
+      if (!opening) card.classList.remove('editing');
       if (opening) setTimeout(() => card.querySelectorAll('.section-textarea').forEach(autoResize), 50);
     }
 
@@ -502,7 +523,7 @@
       setTimeout(() => {
         const card = document.getElementById(`sc-${r.id}`);
         if (card) {
-          card.classList.add('open');
+          card.classList.add('open', 'editing');
           const ni = document.getElementById(`sn-${r.id}`);
           if (ni) ni.focus();
         }
@@ -520,13 +541,17 @@
 
     function updateSelUI() {
       const n = selected.size;
-      // Update circles
       document.querySelectorAll('.select-circle').forEach(el => {
         el.classList.toggle('selected', selected.has(el.dataset.key));
       });
-      // Action bar
       const bar = document.getElementById('action-bar');
-      if (n === 0) { bar.classList.remove('visible'); return; }
+      // Fix 1: explicit transform so hiding always works
+      if (n === 0) {
+        bar.classList.remove('visible');
+        bar.style.transform = 'translateY(100%)';
+        return;
+      }
+      bar.style.transform = '';
       bar.classList.add('visible');
       document.getElementById('action-count').textContent = n === 1 ? 'נבחר 1' : `נבחרו ${n}`;
       document.getElementById('edit-btn').style.display = n === 1 ? '' : 'none';
@@ -539,16 +564,28 @@
       const id = parseInt(rawId);
       const cardId = type === 'r' ? `card-${id}` : `sc-${id}`;
       const card = document.getElementById(cardId);
-      if (card && !card.classList.contains('open')) {
-        type === 'r' ? toggleRecipe(id) : toggleSpecial(id);
+      if (card) {
+        if (!card.classList.contains('open')) {
+          type === 'r' ? toggleRecipe(id) : toggleSpecial(id);
+        }
+        // Fix 2: add editing class so fields become interactive
+        setTimeout(() => {
+          card.classList.add('editing');
+          const firstInput = card.querySelector('.name-input');
+          if (firstInput) firstInput.focus();
+          card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 50);
       }
-      setTimeout(() => card && card.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
       selected.clear();
       updateSelUI();
     }
 
     function deleteSelected() {
       if (selected.size === 0) return;
+      // Fix 3: confirm before deleting
+      const n = selected.size;
+      const msg = n === 1 ? 'למחוק את הקוקטייל הנבחר?' : `למחוק ${n} קוקטיילים?`;
+      if (!confirm(msg)) return;
       const rIds = [], sIds = [];
       selected.forEach(key => {
         const [t, id] = key.split('-');
