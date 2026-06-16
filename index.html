@@ -148,22 +148,56 @@
     }
     .name-input:focus { outline: none; border-color: #c8853a; }
 
+    /* ---- Select circle ---- */
+    .select-circle {
+      width: 26px; height: 26px; min-width: 26px;
+      border-radius: 50%; border: 2px solid #3a3028;
+      cursor: pointer; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s, border-color 0.15s;
+      user-select: none;
+    }
+    .select-circle .cn { font-size: 0.7rem; color: #8a6a4a; font-weight: bold; line-height: 1; }
+    .select-circle .ck { display: none; color: #fff; font-size: 0.85rem; line-height: 1; }
+    .select-circle.selected { background: #c8853a; border-color: #c8853a; }
+    .select-circle.selected .cn { display: none; }
+    .select-circle.selected .ck { display: block; }
+
+    /* ---- Action Bar ---- */
+    .action-bar {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: #1e1a16; border-top: 2px solid #c8853a;
+      padding: 14px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      z-index: 150;
+      transform: translateY(100%);
+      transition: transform 0.25s ease;
+    }
+    .action-bar.visible { transform: translateY(0); }
+    .action-count { color: #8a7a6a; font-size: 0.9rem; }
+    .action-btns { display: flex; gap: 10px; }
+    .action-edit-btn {
+      padding: 10px 16px; border: 1px solid #3a3028;
+      border-radius: 10px; background: #2a2018;
+      color: #d4a058; font-size: 0.95rem; font-weight: bold;
+      cursor: pointer; font-family: inherit; transition: background 0.15s;
+    }
+    .action-edit-btn:hover { background: #3a3028; }
+    .action-delete-btn {
+      padding: 10px 16px; border: none; border-radius: 10px;
+      background: #8a3028; color: #fff;
+      font-size: 0.95rem; font-weight: bold;
+      cursor: pointer; font-family: inherit; transition: background 0.15s;
+    }
+    .action-delete-btn:hover { background: #a03838; }
+
     /* ---- Specials section header ---- */
     .specials-header {
       display: flex; align-items: center;
       margin: 28px 0 16px; gap: 12px;
       color: #c8853a; font-size: 1rem; font-weight: bold; letter-spacing: 0.5px;
     }
-    .specials-header::after {
-      content: ''; flex: 1; height: 1px; background: #2e2820;
-    }
-    .special-card .recipe-header { padding-left: 10px; }
-    .special-delete {
-      background: none; border: none; color: #4a3a2a;
-      font-size: 1rem; cursor: pointer; padding: 4px 6px;
-      line-height: 1; transition: color 0.15s; flex-shrink: 0;
-    }
-    .special-delete:hover { color: #c07050; }
+    .specials-header::after { content: ''; flex: 1; height: 1px; background: #2e2820; }
 
     /* ---- Export hint ---- */
     .export-hint {
@@ -218,6 +252,15 @@
 
     <div class="export-hint">
       ערכת מתכונים? לחץ 💾 למעלה להוריד קובץ מעודכן ולהעלות לגיטהב — כך השינויים יישמרו לכל מכשיר.
+    </div>
+  </div>
+
+  <!-- Action Bar (appears when items selected) -->
+  <div class="action-bar" id="action-bar">
+    <span class="action-count" id="action-count"></span>
+    <div class="action-btns">
+      <button class="action-edit-btn" id="edit-btn" onclick="editSelected()">✏️ ערוך</button>
+      <button class="action-delete-btn" onclick="deleteSelected()">🗑 מחק</button>
     </div>
   </div>
 
@@ -327,7 +370,9 @@
       document.getElementById('recipes-list').innerHTML = recipes.map((r, i) => `
         <div class="recipe-card" id="card-${r.id}">
           <div class="recipe-header" onclick="toggleRecipe(${r.id})">
-            <span class="recipe-num">${i + 1}.</span>
+            <div class="select-circle" data-key="r-${r.id}" onclick="toggleSel('r-${r.id}',event)">
+              <span class="cn">${i + 1}</span><span class="ck">✓</span>
+            </div>
             <span class="recipe-title" id="rtitle-${r.id}">${escHtml(r.name)}</span>
             <span class="recipe-arrow">›</span>
           </div>
@@ -399,9 +444,10 @@
       document.getElementById('specials-list').innerHTML = specials.map((r, i) => `
         <div class="recipe-card special-card" id="sc-${r.id}">
           <div class="recipe-header" onclick="toggleSpecial(${r.id})">
-            <span class="recipe-num">★</span>
+            <div class="select-circle" data-key="s-${r.id}" onclick="toggleSel('s-${r.id}',event)">
+              <span class="cn">★</span><span class="ck">✓</span>
+            </div>
             <span class="recipe-title" id="st-${r.id}">${escHtml(r.name) || '<em style="opacity:.5">ללא שם</em>'}</span>
-            <button class="special-delete" onclick="deleteSpecial(${r.id},event)" title="מחק">✕</button>
             <span class="recipe-arrow">›</span>
           </div>
           <div class="recipe-body"><div class="recipe-inner">
@@ -463,11 +509,57 @@
       }, 30);
     }
 
-    function deleteSpecial(id, e) {
+    /* ── Selection ── */
+    let selected = new Set();
+
+    function toggleSel(key, e) {
       e.stopPropagation();
-      specials = specials.filter(x => x.id !== id);
-      saveSpecials();
-      renderSpecials();
+      selected.has(key) ? selected.delete(key) : selected.add(key);
+      updateSelUI();
+    }
+
+    function updateSelUI() {
+      const n = selected.size;
+      // Update circles
+      document.querySelectorAll('.select-circle').forEach(el => {
+        el.classList.toggle('selected', selected.has(el.dataset.key));
+      });
+      // Action bar
+      const bar = document.getElementById('action-bar');
+      if (n === 0) { bar.classList.remove('visible'); return; }
+      bar.classList.add('visible');
+      document.getElementById('action-count').textContent = n === 1 ? 'נבחר 1' : `נבחרו ${n}`;
+      document.getElementById('edit-btn').style.display = n === 1 ? '' : 'none';
+    }
+
+    function editSelected() {
+      if (selected.size !== 1) return;
+      const key = [...selected][0];
+      const [type, rawId] = key.split('-');
+      const id = parseInt(rawId);
+      const cardId = type === 'r' ? `card-${id}` : `sc-${id}`;
+      const card = document.getElementById(cardId);
+      if (card && !card.classList.contains('open')) {
+        type === 'r' ? toggleRecipe(id) : toggleSpecial(id);
+      }
+      setTimeout(() => card && card.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+      selected.clear();
+      updateSelUI();
+    }
+
+    function deleteSelected() {
+      if (selected.size === 0) return;
+      const rIds = [], sIds = [];
+      selected.forEach(key => {
+        const [t, id] = key.split('-');
+        (t === 'r' ? rIds : sIds).push(parseInt(id));
+      });
+      if (rIds.length) { recipes = recipes.filter(r => !rIds.includes(r.id)); saveRecipes(); }
+      if (sIds.length) { specials = specials.filter(r => !sIds.includes(r.id)); saveSpecials(); }
+      selected.clear();
+      updateSelUI();
+      if (rIds.length) renderRecipes();
+      if (sIds.length) renderSpecials();
     }
 
     /* ── Export HTML ── */
