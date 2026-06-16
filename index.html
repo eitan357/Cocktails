@@ -148,6 +148,23 @@
     }
     .name-input:focus { outline: none; border-color: #c8853a; }
 
+    /* ---- Specials section header ---- */
+    .specials-header {
+      display: flex; align-items: center;
+      margin: 28px 0 16px; gap: 12px;
+      color: #c8853a; font-size: 1rem; font-weight: bold; letter-spacing: 0.5px;
+    }
+    .specials-header::after {
+      content: ''; flex: 1; height: 1px; background: #2e2820;
+    }
+    .special-card .recipe-header { padding-left: 10px; }
+    .special-delete {
+      background: none; border: none; color: #4a3a2a;
+      font-size: 1rem; cursor: pointer; padding: 4px 6px;
+      line-height: 1; transition: color 0.15s; flex-shrink: 0;
+    }
+    .special-delete:hover { color: #c07050; }
+
     /* ---- Export hint ---- */
     .export-hint {
       margin-top: 24px;
@@ -194,6 +211,11 @@
   <div id="recipes-page" class="page" style="display:none">
     <h1>🍸 מתכונים</h1>
     <div id="recipes-list"></div>
+
+    <div class="specials-header">ספיישלים:</div>
+    <div id="specials-list"></div>
+    <button class="add-btn" onclick="addSpecial()">＋ הוסף ספיישל</button>
+
     <div class="export-hint">
       ערכת מתכונים? לחץ 💾 למעלה להוריד קובץ מעודכן ולהעלות לגיטהב — כך השינויים יישמרו לכל מכשיר.
     </div>
@@ -218,6 +240,10 @@
     // DEFAULT_RECIPES_START
     const DEFAULT_RECIPES = [{"id":1,"name":"אולד פאשן","ingredients":"וויסקי – 60 מ\"ל\nסוכר – 10 מ\"ל\nאנגוסטורה – 3 טיפות","preparation":"בכוס ערבוב עם כפית, לסנן ללואו בול מקוררת.","serving":"קוביית קרח וקליפת תפוז.","variations":""},{"id":2,"name":"נגרוני","ingredients":"ג'ין – 30 מ\"ל\nורמוט אדום – 30 מ\"ל\nקמפרי – 30 מ\"ל","preparation":"בכוס ערבוב עם כפית, 15 ערבובים, לסנן ללואו בול מקוררת.","serving":"קוביית קרח וקליפת תפוז.","variations":""},{"id":3,"name":"מוסקו מיול","ingredients":"וודקה – 60 מ\"ל\nלימון – 30 מ\"ל\nסוכר – 15 מ\"ל\nג'ינג'ר ביר – להסגרת הכוס","preparation":"בשייקר הקטן עם קצת קרח גרוס, להעביר להיי בול לסגור עם הג'ינג'ר ביר.","serving":"4 טיפות אנגוסטורה, נענע ולימון.","variations":""},{"id":4,"name":"לונדון מיול","ingredients":"ג'ין – 60 מ\"ל\nלימון – 30 מ\"ל\nסוכר – 15 מ\"ל\nג'ינג'ר ביר – להסגרת הכוס","preparation":"כמו מוסקו מיול.","serving":"","variations":""},{"id":5,"name":"מרגריטה","ingredients":"טקילה – 50 מ\"ל\nלימון – 30 מ\"ל\nטריפל סק – 30 מ\"ל\nסוכר – 15 מ\"ל","preparation":"בשייקר קטן עם קרח גרוס לשקשק, לסנן סינון כפול לכוס דאבל מוצננת עם כתר מלח ולימון בפנים.","serving":"","variations":"מרגריטה בטעמים: תוספת מיץ (מנגו/תות) – 20 מ\"ל.\nמרגריטה חריפה: תוספת צ'ילי – 15 מ\"ל."},{"id":6,"name":"מוחיטו","ingredients":"רום לבן – 60 מ\"ל\nסוכר – 30 מ\"ל\nלימון קטן / חצי גדול\nעלי נענע\nסודה","preparation":"למעוך את הלימון בתוך הכוס, להוסיף נענע ולמעוך שוב. להוסיף רום וקרח רגיל, למזוג להיי בול, השלמת קרח גרוס וסודה.","serving":"2 טיפות אנגוסטורה, נענע ולימון.","variations":""},{"id":7,"name":"קאשסה / אפרול","ingredients":"אפרול – 60 מ\"ל\nקאווה – 90/120 מ\"ל\nסודה – לסגירה","preparation":"להכניס לכוס יין קרח ותפוז, לשים את האפרול, קאווה וסודה לפי הסדר ולהגיש עם קש.","serving":"","variations":""},{"id":8,"name":"וויסקי סאוור","ingredients":"וויסקי – 60 מ\"ל\nלימון – 50 מ\"ל\nסוכר – 30 מ\"ל\nחלבון ביצה","preparation":"שקשוק יבש (ללא קרח) ואז שקשוק עם קרח. למזוג ללואו בול מקוררת.","serving":"קובייה גדולה, טיפות אנגוסטורה וקליפת תפוז.","variations":""},{"id":9,"name":"קוקטייל סאוור (בחירה)","ingredients":"וודקה / ג'ין – 30 מ\"ל\nלימון – 30 מ\"ל\nסוכר – 20 מ\"ל","preparation":"לסנן ללואו בול מקוררת עם לימון.","serving":"","variations":""},{"id":10,"name":"ג'זמין","ingredients":"ג'ין – 45 מ\"ל\nלימון – 20 מ\"ל\nטריפל סק – 7.5 מ\"ל\nקמפרי – 7.5 מ\"ל\nסוכר – 7.5 מ\"ל\n(חלופה: 30 מ\"ל מכל מרכיב למעט הסוכר)","preparation":"לשקשק ולסנן לכוס דאבל עם קליפת תפוז.","serving":"","variations":""},{"id":11,"name":"קוסמופוליטן","ingredients":"וודקה – 50 מ\"ל\nמיץ חמוציות – 30 מ\"ל\nלימון – 30 מ\"ל\nטריפל סק – 20 מ\"ל\nסוכר – 15 מ\"ל","preparation":"3/4 כוס קרח בשייקר, סינון כפול לכוס דאבל מקוררת.","serving":"קליפת תפוז בפנים או על הכוס.","variations":""},{"id":12,"name":"בייזל סמאש","ingredients":"ג'ין – 60 מ\"ל\nלימון – 30 מ\"ל\nסוכר – 20 מ\"ל\nחלבון ביצה – 1 יחידה\nעלי בזיליקום","preparation":"לכתוש בזיליקום בכוס ערבוב. שקשוק יבש, ואז שקשוק עם קרח. סינון כפול ללואו בול מקוררת.","serving":"קובייה גדולה ובזיליקום לקישוט (בלי קש).","variations":""},{"id":13,"name":"מנהטן","ingredients":"וויסקי – 60 מ\"ל\nורמוט אדום – 30 מ\"ל\nאנגוסטורה – 3 טיפות","preparation":"בכוס ערבוב עם כפית, סינון כפול לכוס דאבל.","serving":"קליפת תפוז ודובדבן.","variations":""},{"id":14,"name":"אספרסו מרטיני","ingredients":"וודקה – 45 מ\"ל\nקפה (אספרסו) – 30 מ\"ל\nליקר קפה – 30 מ\"ל\nסוכר – 10 מ\"ל (אופציונלי)\nפולי קפה (לגירוד מעל)","preparation":"שקשוק חזק עם קרח רגיל במשך כמה דקות לקבלת קצף אחיד.","serving":"כוס מקוררת עם פולי קפה מגורדים מעל.","variations":""}];
     // DEFAULT_RECIPES_END
+
+    // DEFAULT_SPECIALS_START
+    const DEFAULT_SPECIALS = [];
+    // DEFAULT_SPECIALS_END
 
     /* ── Inventory ── */
     let drinks = (() => {
@@ -354,21 +380,114 @@
       el.style.height = el.scrollHeight + 'px';
     }
 
+    /* ── Specials ── */
+    let specials = (() => {
+      try { const s = localStorage.getItem('cocktail_specials'); if (s) return JSON.parse(s); } catch(e) {}
+      return JSON.parse(JSON.stringify(DEFAULT_SPECIALS));
+    })();
+
+    function saveSpecials() { localStorage.setItem('cocktail_specials', JSON.stringify(specials)); }
+
+    const RECIPE_FIELDS = [
+      { key:'ingredients', label:'מרכיבים' },
+      { key:'preparation', label:'אופן הכנה' },
+      { key:'serving',     label:'הגשה' },
+      { key:'variations',  label:'גיוונים' },
+    ];
+
+    function renderSpecials() {
+      document.getElementById('specials-list').innerHTML = specials.map((r, i) => `
+        <div class="recipe-card special-card" id="sc-${r.id}">
+          <div class="recipe-header" onclick="toggleSpecial(${r.id})">
+            <span class="recipe-num">★</span>
+            <span class="recipe-title" id="st-${r.id}">${escHtml(r.name) || '<em style="opacity:.5">ללא שם</em>'}</span>
+            <button class="special-delete" onclick="deleteSpecial(${r.id},event)" title="מחק">✕</button>
+            <span class="recipe-arrow">›</span>
+          </div>
+          <div class="recipe-body"><div class="recipe-inner">
+            <div class="recipe-section">
+              <div class="section-label">שם</div>
+              <input class="name-input" type="text" id="sn-${r.id}"
+                oninput="updateSpecial(${r.id},'name',this.value)"/>
+            </div>
+            ${RECIPE_FIELDS.map(f => `
+            <div class="recipe-section">
+              <div class="section-label">${f.label}</div>
+              <textarea class="section-textarea" id="sf-${f.key}-${r.id}" rows="1"
+                placeholder="${f.label}..."
+                oninput="updateSpecial(${r.id},'${f.key}',this.value);autoResize(this)"></textarea>
+            </div>`).join('')}
+          </div></div>
+        </div>`).join('');
+
+      specials.forEach(r => {
+        const ni = document.getElementById(`sn-${r.id}`);
+        if (ni) ni.value = r.name;
+        RECIPE_FIELDS.forEach(f => {
+          const el = document.getElementById(`sf-${f.key}-${r.id}`);
+          if (el) { el.value = r[f.key]; autoResize(el); }
+        });
+      });
+    }
+
+    function toggleSpecial(id) {
+      const card = document.getElementById(`sc-${id}`);
+      const opening = !card.classList.contains('open');
+      card.classList.toggle('open');
+      if (opening) setTimeout(() => card.querySelectorAll('.section-textarea').forEach(autoResize), 50);
+    }
+
+    function updateSpecial(id, field, value) {
+      const r = specials.find(x => x.id === id);
+      if (!r) return;
+      r[field] = value;
+      if (field === 'name') {
+        const t = document.getElementById(`st-${id}`);
+        if (t) t.innerHTML = escHtml(value) || '<em style="opacity:.5">ללא שם</em>';
+      }
+      saveSpecials();
+    }
+
+    function addSpecial() {
+      const r = { id: Date.now(), name: '', ingredients: '', preparation: '', serving: '', variations: '' };
+      specials.push(r);
+      saveSpecials();
+      renderSpecials();
+      setTimeout(() => {
+        const card = document.getElementById(`sc-${r.id}`);
+        if (card) {
+          card.classList.add('open');
+          const ni = document.getElementById(`sn-${r.id}`);
+          if (ni) ni.focus();
+        }
+      }, 30);
+    }
+
+    function deleteSpecial(id, e) {
+      e.stopPropagation();
+      specials = specials.filter(x => x.id !== id);
+      saveSpecials();
+      renderSpecials();
+    }
+
     /* ── Export HTML ── */
     async function exportHTML() {
       try {
         showToast('מכין קובץ...');
         const src = await fetch(location.href, { cache: 'no-store' }).then(r => r.text());
 
-        const drinkNames = drinks.map(d => d.name);
-        const newDrinks  = 'const DEFAULT_DRINKS = ' + JSON.stringify(drinkNames) + ';';
-        const newRecipes = 'const DEFAULT_RECIPES = ' + JSON.stringify(recipes) + ';';
+        const drinkNames  = drinks.map(d => d.name);
+        const newDrinks   = 'const DEFAULT_DRINKS = '   + JSON.stringify(drinkNames) + ';';
+        const newRecipes  = 'const DEFAULT_RECIPES = '  + JSON.stringify(recipes)    + ';';
+        const newSpecials = 'const DEFAULT_SPECIALS = ' + JSON.stringify(specials)   + ';';
 
         const out = src
           .replace(/\/\/ DEFAULT_DRINKS_START[\s\S]*?\/\/ DEFAULT_DRINKS_END/,
                    '// DEFAULT_DRINKS_START\n    ' + newDrinks + '\n    // DEFAULT_DRINKS_END')
           .replace(/\/\/ DEFAULT_RECIPES_START[\s\S]*?\/\/ DEFAULT_RECIPES_END/,
-                   '// DEFAULT_RECIPES_START\n    ' + newRecipes + '\n    // DEFAULT_RECIPES_END');
+                   '// DEFAULT_RECIPES_START\n    ' + newRecipes + '\n    // DEFAULT_RECIPES_END')
+          .replace(/\/\/ DEFAULT_SPECIALS_START[\s\S]*?\/\/ DEFAULT_SPECIALS_END/,
+                   '// DEFAULT_SPECIALS_START\n    ' + newSpecials + '\n    // DEFAULT_SPECIALS_END');
 
         const blob = new Blob([out], { type: 'text/html;charset=utf-8' });
         const a = document.createElement('a');
@@ -400,6 +519,7 @@
     /* ── Init ── */
     render();
     renderRecipes();
+    renderSpecials();
   </script>
 </body>
 </html>
