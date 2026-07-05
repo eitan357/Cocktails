@@ -51,12 +51,16 @@
     }
 
     /* ---- Inventory ---- */
-    .drink-row {
-      display: flex; align-items: center;
+    .drink-item {
       background: #1e1a16; border-radius: 14px;
-      padding: 10px 12px; margin-bottom: 10px; gap: 10px;
+      margin-bottom: 10px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.5);
       border: 1px solid #2e2820;
+      overflow: hidden;
+    }
+    .drink-row {
+      display: flex; align-items: center;
+      padding: 10px 12px; gap: 10px;
     }
     .drink-name {
       flex: 1; background: transparent; border: none;
@@ -89,6 +93,14 @@
       line-height: 1; transition: color 0.15s; flex-shrink: 0;
     }
     .delete-btn:hover { color: #c07050; }
+    .drink-note {
+      width: 100%; background: transparent; border: none;
+      border-top: 1px dashed #2a2218;
+      color: #7a6a5a; font-size: 0.88rem;
+      padding: 5px 12px 7px; font-family: inherit;
+    }
+    .drink-note:focus { outline: none; color: #c0b0a0; }
+    .drink-note::placeholder { color: #3a3028; font-style: italic; }
     .add-btn {
       display: block; width: 100%; margin: 6px 0 20px;
       padding: 13px; background: transparent;
@@ -97,16 +109,16 @@
       text-align: center; transition: border-color 0.15s, color 0.15s;
     }
     .add-btn:hover { border-color: #d4a058; color: #f0e6d8; }
-    .copy-btn {
+    .whatsapp-btn {
       display: block; width: 100%; padding: 16px;
-      background: #c8853a; border: none; border-radius: 14px;
+      background: #25D366; border: none; border-radius: 14px;
       color: #fff; font-size: 1.15rem; font-weight: bold;
       cursor: pointer; letter-spacing: 0.5px;
       transition: background 0.15s;
-      box-shadow: 0 4px 16px rgba(200,133,58,0.35);
+      box-shadow: 0 4px 16px rgba(37,211,102,0.35);
     }
-    .copy-btn:hover { background: #b07030; }
-    .copy-btn:active { background: #a06828; }
+    .whatsapp-btn:hover { background: #1fbe5a; }
+    .whatsapp-btn:active { background: #1aaa4e; }
 
     /* ---- Recipe Cards ---- */
     .recipe-card {
@@ -266,7 +278,7 @@
     <h1>🍹 מלאי קוקטיילים</h1>
     <div id="list"></div>
     <button class="add-btn" onclick="addDrink()">＋ הוסף משקה</button>
-    <button class="copy-btn" onclick="copyList()">📋 &nbsp;העתק רשימה</button>
+    <button class="whatsapp-btn" onclick="shareWhatsApp()">📤 שלח לווצאפ</button>
   </div>
 
   <!-- Recipes Page -->
@@ -318,26 +330,36 @@
 
     /* ── Inventory ── */
     let drinks = (() => {
-      try { const s = localStorage.getItem('cocktail_drinks'); if (s) return JSON.parse(s); } catch(e) {}
-      return DEFAULT_DRINKS.map((name, i) => ({ id: i + 1, name, qty: '' }));
+      try {
+        const s = localStorage.getItem('cocktail_drinks');
+        if (s) {
+          const parsed = JSON.parse(s);
+          return parsed.map(d => ({ note: '', ...d }));
+        }
+      } catch(e) {}
+      return DEFAULT_DRINKS.map((name, i) => ({ id: i + 1, name, qty: '', note: '' }));
     })();
 
     function saveDrinks() { localStorage.setItem('cocktail_drinks', JSON.stringify(drinks)); }
 
     function render() {
       document.getElementById('list').innerHTML = drinks.map((d, i) => `
-        <div class="drink-row">
-          <button class="delete-btn" onclick="deleteDrink(${i})">✕</button>
-          <input class="drink-name" type="text" value="${escHtml(d.name)}" placeholder="שם משקה"
-            onchange="drinks[${i}].name=this.value.trim();saveDrinks()"/>
-          <div class="qty-controls">
-            <button class="qty-btn" onclick="changeQty(${i},-0.5)">−</button>
-            <input class="qty-input" type="number" inputmode="decimal" enterkeyhint="next"
-              value="${d.qty}" step="0.5" min="0" placeholder="כמות"
-              oninput="drinks[${i}].qty=this.value;saveDrinks()"
-              onkeydown="qtyKeydown(event,${i})"/>
-            <button class="qty-btn" onclick="changeQty(${i},0.5)">+</button>
+        <div class="drink-item">
+          <div class="drink-row">
+            <button class="delete-btn" onclick="deleteDrink(${i})">✕</button>
+            <input class="drink-name" type="text" value="${escHtml(d.name)}" placeholder="שם משקה"
+              onchange="drinks[${i}].name=this.value.trim();saveDrinks()"/>
+            <div class="qty-controls">
+              <button class="qty-btn" onclick="changeQty(${i},-0.5)">−</button>
+              <input class="qty-input" type="number" inputmode="decimal" enterkeyhint="next"
+                value="${d.qty}" step="0.5" min="0" placeholder="כמות"
+                oninput="drinks[${i}].qty=this.value;saveDrinks()"
+                onkeydown="qtyKeydown(event,${i})"/>
+              <button class="qty-btn" onclick="changeQty(${i},0.5)">+</button>
+            </div>
           </div>
+          <input class="drink-note" type="text" value="${escHtml(d.note || '')}" placeholder="הערה (תופיע בסוגריים בהודעה)"
+            oninput="drinks[${i}].note=this.value;saveDrinks()"/>
         </div>`).join('');
     }
 
@@ -362,22 +384,19 @@
     }
 
     function addDrink() {
-      drinks.push({ id: Date.now(), name: '', qty: '' }); saveDrinks(); render();
+      drinks.push({ id: Date.now(), name: '', qty: '', note: '' }); saveDrinks(); render();
       setTimeout(() => { const a = document.querySelectorAll('.drink-name'); a[a.length-1].focus(); }, 30);
     }
 
-    function copyList() {
+    function shareWhatsApp() {
       const lines = drinks.filter(d => d.name.trim() && d.qty !== '')
-        .map(d => `${d.name} - ${parseFloat(d.qty) === 0 ? 'נגמר' : d.qty}`);
-      if (!lines.length) { showToast('אין כמויות למלאי 🤷'); return; }
-      navigator.clipboard.writeText(lines.join('\n'))
-        .then(() => showToast('✓ הרשימה הועתקה ללוח!'))
-        .catch(() => {
-          const ta = Object.assign(document.createElement('textarea'),
-            { value: lines.join('\n'), style: 'position:fixed;opacity:0' });
-          document.body.appendChild(ta); ta.select(); document.execCommand('copy');
-          document.body.removeChild(ta); showToast('✓ הרשימה הועתקה ללוח!');
+        .map(d => {
+          const qty = parseFloat(d.qty) === 0 ? 'נגמר' : d.qty;
+          const note = d.note && d.note.trim() ? ` (${d.note.trim()})` : '';
+          return `${d.name} - ${qty}${note}`;
         });
+      if (!lines.length) { showToast('אין כמויות למלאי 🤷'); return; }
+      window.open('https://wa.me/?text=' + encodeURIComponent(lines.join('\n')), '_blank');
     }
 
     /* ── Recipes ── */
@@ -558,7 +577,6 @@
         el.classList.toggle('selected', selected.has(el.dataset.key));
       });
       const bar = document.getElementById('action-bar');
-      // Fix 1: explicit transform so hiding always works
       if (n === 0) {
         bar.classList.remove('visible');
         bar.style.transform = 'translateY(100%)';
@@ -581,7 +599,6 @@
         if (!card.classList.contains('open')) {
           type === 'r' ? toggleRecipe(id) : toggleSpecial(id);
         }
-        // Fix 2: add editing class so fields become interactive
         setTimeout(() => {
           card.classList.add('editing');
           const firstInput = card.querySelector('.name-input');
@@ -595,7 +612,6 @@
 
     function deleteSelected() {
       if (selected.size === 0) return;
-      // Fix 3: confirm before deleting
       const n = selected.size;
       const msg = n === 1 ? 'למחוק את הקוקטייל הנבחר?' : `למחוק ${n} קוקטיילים?`;
       if (!confirm(msg)) return;
