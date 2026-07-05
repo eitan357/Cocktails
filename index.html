@@ -119,6 +119,14 @@
     }
     .whatsapp-btn:hover { background: #1fbe5a; }
     .whatsapp-btn:active { background: #1aaa4e; }
+    .reset-btn {
+      display: block; width: 100%; padding: 11px;
+      background: transparent; border: 1px solid #3a3028;
+      border-radius: 10px; color: #7a6a5a;
+      font-size: 0.9rem; cursor: pointer; font-family: inherit;
+      margin-bottom: 18px; transition: border-color 0.15s, color 0.15s;
+    }
+    .reset-btn:hover { border-color: #c07050; color: #c07050; }
 
     /* ---- Recipe Cards ---- */
     .recipe-card {
@@ -276,6 +284,7 @@
   <!-- Inventory Page -->
   <div id="inventory-page" class="page">
     <h1>🍹 מלאי קוקטיילים</h1>
+    <button class="reset-btn" onclick="resetInventory()">🔄 אפס מלאי — כמות 1 לכל קוקטייל</button>
     <div id="list"></div>
     <button class="add-btn" onclick="addDrink()">＋ הוסף משקה</button>
     <button class="whatsapp-btn" onclick="shareWhatsApp()">📤 שלח לווצאפ</button>
@@ -386,6 +395,13 @@
     function addDrink() {
       drinks.push({ id: Date.now(), name: '', qty: '', note: '' }); saveDrinks(); render();
       setTimeout(() => { const a = document.querySelectorAll('.drink-name'); a[a.length-1].focus(); }, 30);
+    }
+
+    function resetInventory() {
+      if (!confirm('לאפס את כל הכמויות ל-1 ולמחוק את כל ההערות?')) return;
+      drinks.forEach(d => { d.qty = '1'; d.note = ''; });
+      saveDrinks();
+      render();
     }
 
     function shareWhatsApp() {
