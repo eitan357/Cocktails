@@ -156,6 +156,7 @@
       user-select: none; transition: background 0.15s; flex-shrink: 0;
     }
     .soft-btn:active { background: #3a3028; }
+    .soft-btn-ten { width: auto; border-radius: 8px; padding: 0 8px; font-size: 0.85rem; }
     .soft-count {
       min-width: 28px; text-align: center;
       font-size: 1.1rem; font-weight: bold; color: #f0e6d8;
@@ -471,6 +472,7 @@
             <button class="soft-btn" onclick="changeSoft(${i},-1)">−</button>
             <span class="soft-count${softCounts[i] === 0 ? ' zero' : ''}" id="sct-${i}">${softCounts[i]}</span>
             <button class="soft-btn" onclick="changeSoft(${i},1)">+</button>
+            <button class="soft-btn soft-btn-ten" onclick="changeSoft(${i},10)">+10</button>
           </div>
         </div>`).join('');
     }
