@@ -12,7 +12,7 @@
       background: #12100e;
       color: #f0e6d8;
       min-height: 100vh;
-      padding-top: 16px;
+      padding-top: 52px;
       padding-bottom: 72px;
     }
 
@@ -472,7 +472,7 @@
             <button class="soft-btn" onclick="changeSoft(${i},-1)">−</button>
             <span class="soft-count${softCounts[i] === 0 ? ' zero' : ''}" id="sct-${i}">${softCounts[i]}</span>
             <button class="soft-btn" onclick="changeSoft(${i},1)">+</button>
-            <button class="soft-btn soft-btn-ten" onclick="changeSoft(${i},10)">+10</button>
+            <button class="soft-btn soft-btn-ten" onclick="changeSoft(${i},5)">+5</button>
           </div>
         </div>`).join('');
     }
