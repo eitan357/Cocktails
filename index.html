@@ -37,6 +37,13 @@
     .tab-icon { font-size: 1.35rem; line-height: 1; }
     .tab-btn.active { color: #d4a058; border-top-color: #d4a058; }
 
+    /* ---- Top shield (hides content scrolling under the FAB) ---- */
+    .top-shield {
+      position: fixed; top: 0; left: 0; right: 0;
+      height: 50px; background: #12100e;
+      z-index: 99; pointer-events: none;
+    }
+
     /* ---- Export FAB ---- */
     .export-fab {
       position: fixed; top: 10px; left: 14px;
@@ -297,6 +304,7 @@
 </head>
 <body>
 
+  <div class="top-shield"></div>
   <button class="export-fab" onclick="exportHTML()" title="שמור גרסה">💾</button>
 
   <!-- Inventory Page -->
