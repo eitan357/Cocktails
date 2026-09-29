@@ -37,13 +37,19 @@
     .tab-icon { font-size: 1.35rem; line-height: 1; }
     .tab-btn.active { color: #d4a058; border-top-color: #d4a058; }
 
-    /* ---- Export FAB ---- */
-    .export-wrap {
-      max-width: 480px; margin: 0 auto;
-      padding: 12px 16px 0;
-      text-align: left;
+    /* ---- Page ---- */
+    .page { max-width: 480px; margin: 0 auto; padding: 24px 16px; }
+
+    .page-header {
+      position: relative; display: flex;
+      align-items: center; margin-bottom: 28px;
+    }
+    h1 {
+      flex: 1; text-align: center; font-size: 1.8rem; color: #d4a058;
+      letter-spacing: 1px; text-shadow: 0 0 30px rgba(212,160,88,0.3);
     }
     .export-fab {
+      position: absolute; left: 0;
       background: #1a1612; border: 1px solid #2a2218;
       border-radius: 8px; color: #5a4a3a;
       font-size: 1rem; cursor: pointer;
@@ -51,15 +57,6 @@
       transition: color 0.15s, border-color 0.15s;
     }
     .export-fab:hover { color: #d4a058; border-color: #3a3028; }
-
-    /* ---- Page ---- */
-    .page { max-width: 480px; margin: 0 auto; padding: 24px 16px; }
-
-    h1 {
-      text-align: center; font-size: 1.8rem; color: #d4a058;
-      margin-bottom: 28px; letter-spacing: 1px;
-      text-shadow: 0 0 30px rgba(212,160,88,0.3);
-    }
 
     /* ---- Inventory ---- */
     .drink-item {
@@ -301,13 +298,12 @@
 </head>
 <body>
 
-  <div class="export-wrap">
-    <button class="export-fab" onclick="exportHTML()" title="שמור גרסה">💾</button>
-  </div>
-
   <!-- Inventory Page -->
   <div id="inventory-page" class="page">
-    <h1>🍹 מלאי קוקטיילים</h1>
+    <div class="page-header">
+      <h1>🍹 מלאי קוקטיילים</h1>
+      <button class="export-fab" onclick="exportHTML()" title="שמור גרסה">💾</button>
+    </div>
     <button class="reset-btn" onclick="resetInventory()">🔄 אפס מלאי — כמות 1 לכל קוקטייל</button>
     <div id="list"></div>
     <button class="add-btn" onclick="addDrink()">＋ הוסף משקה</button>
@@ -316,7 +312,10 @@
 
   <!-- Recipes Page -->
   <div id="recipes-page" class="page" style="display:none">
-    <h1>🍸 מתכונים</h1>
+    <div class="page-header">
+      <h1>🍸 מתכונים</h1>
+      <button class="export-fab" onclick="exportHTML()" title="שמור גרסה">💾</button>
+    </div>
     <div id="recipes-list"></div>
     <div class="specials-header">ספיישלים:</div>
     <div id="specials-list"></div>
@@ -328,7 +327,10 @@
 
   <!-- Soft Drinks Page -->
   <div id="soft-page" class="page" style="display:none">
-    <h1>🥤 שתיה</h1>
+    <div class="page-header">
+      <h1>🥤 שתיה</h1>
+      <button class="export-fab" onclick="exportHTML()" title="שמור גרסה">💾</button>
+    </div>
     <button class="reset-btn" onclick="resetSoft()">🔄 אפס הכל לאפס</button>
     <div id="soft-list" class="soft-list"></div>
   </div>
